@@ -1,6 +1,6 @@
 ---
 name: pr-flow
-description: Create a PR with standard workflow (branch, commit, push, PR, watch checks)
+description: Create a PR with standard workflow (branch, commit, push, PR, watch checks, review comments)
 allowed-tools:
   - Bash(git *)
   - Bash(gh *)
@@ -88,4 +88,16 @@ EOF
 gh pr checks --watch
 ```
 
-Report final status to user.
+### 6. Check Review Comments
+
+After checks complete, check for unresolved review threads using the GraphQL workflow in AGENTS.md ("PR Review Workflow" section).
+
+For quick overview of comments:
+
+```bash
+gh pr view --comments
+```
+
+If there are unresolved comments (especially from Copilot), summarize them for the user and offer to address any actionable feedback before merging.
+
+Report final status to user including check results and any unresolved review threads.
