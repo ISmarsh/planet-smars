@@ -10,18 +10,29 @@ Claude Code skills (custom slash commands) for common workflows.
 
 ## Installation
 
-### Option 1: Copy to Personal Skills (All Projects)
+### Personal Skills (Recommended)
+
+Install once, available in all projects. Best for general-purpose skills like `pr-flow`.
 
 ```bash
 cp -r templates/skills/pr-flow ~/.claude/skills/
 ```
 
-### Option 2: Copy to Project Skills (Single Project)
+Skills in `~/.claude/skills/` are loaded for every project. Update manually when
+planet-smars changes (rare for stable skills).
+
+### Project Skills
+
+Install per-project. Best for project-specific workflows or when you want the
+skill version-controlled with the project.
 
 ```bash
 mkdir -p .claude/skills
 cp -r templates/skills/pr-flow .claude/skills/
 ```
+
+**Note:** Claude Code doesn't support loading skills from arbitrary paths (like
+a submodule). You must copy to `.claude/skills/` or use symlinks.
 
 ## Usage
 
