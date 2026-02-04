@@ -7,6 +7,7 @@ Reusable project scaffolding and configuration templates.
 | Template | Description | Usage |
 |----------|-------------|-------|
 | `claude-guidance/` | AI assistant guidance (CLAUDE.md, copilot-instructions) | Submodule or copy |
+| `github-workflows/` | GitHub Actions for CI and deployment | Copy to `.github/workflows/` |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter | Copy and customize |
 
 ---
@@ -40,6 +41,28 @@ git submodule add https://github.com/ISmarsh/planet-smars .planet-smars
 cp templates/claude-guidance/CLAUDE.md .
 cp templates/claude-guidance/copilot-instructions.md .github/
 ```
+
+---
+
+## github-workflows
+
+GitHub Actions workflow templates for Node.js projects.
+
+### Contents
+
+| File | Purpose |
+|------|---------|
+| `ci.yml` | Lint, test, and build on PRs and main pushes |
+| `deploy-gh-pages.yml` | Deploy to GitHub Pages |
+
+### Usage
+
+```bash
+mkdir -p .github/workflows
+cp templates/github-workflows/*.yml .github/workflows/
+```
+
+See `github-workflows/README.md` for customization options.
 
 ---
 

@@ -210,6 +210,44 @@ Before merging a pull request, consider these checks:
 - Resolve threads after addressing
 - Present dismissals for approval before resolving
 
+## Copilot Auto-Review Workflow
+
+If the repo has GitHub Copilot configured to review PRs automatically:
+
+### Setup
+
+Enable Copilot reviews via repo Settings → Rules → Rulesets, or manually
+trigger via PR page → Reviewers → gear icon → select "copilot-pull-request-reviewer".
+
+### Triage Process
+
+**While CI runs**, check for Copilot comments (typically posts within a minute).
+
+Categorize each comment:
+- **Fix**: Real bugs, logic errors, missing edge cases in new code
+- **Dismiss**: Stylistic preferences, over-engineering, suggestions for code
+  not changed in the PR
+- **Already fixed**: Issues addressed by other commits
+
+**Common dismissals:**
+- Unnecessary `useMemo`/`useCallback` wrapping (unless measured perf issue)
+- Dependency array pedantry for stable React setState
+- Suggestions to add complexity for hypothetical future cases
+- Over-abstraction for patterns that appear < 3 times
+
+### Resolution
+
+1. **Never batch-resolve** without reading each comment — Copilot occasionally
+   finds real bugs
+2. **Present dismissals** to user for approval before posting replies
+3. Use the PR Review Workflow above for replying and resolving threads
+
+### If Copilot Doesn't Review
+
+Sometimes skips commits (small changes, rapid pushes). Manually trigger via
+GitHub UI: PR page → Reviewers (right sidebar) → gear icon → select
+"copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
+
 ## Questions to Ask Pattern
 
 When users request features, clarify approach before implementing:
