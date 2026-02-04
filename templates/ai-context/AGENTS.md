@@ -21,6 +21,13 @@ Universal guidance for AI-assisted development. This file follows the
 
 - Keep PRs focused on a single concern
 - Never force-push to shared branches
+- **Enable branch protection** requiring PRs for main (prevents accidental direct pushes)
+
+**Note:** GitHub has two protection systems:
+- **Rulesets** (newer): `gh api repos/OWNER/REPO/rulesets`
+- **Branch protection rules** (older): `gh api repos/OWNER/REPO/branches/main/protection`
+
+Prefer rulesets for new repos.
 
 ### Merging PRs
 
