@@ -302,6 +302,20 @@ When users request features, clarify approach before implementing:
 
 Prefer asking questions over making assumptions. Better to clarify than redo work.
 
+### CARE Checklist
+
+Before starting complex tasks, check if the user provided enough information using
+the [CARE framework](https://www.nngroup.com/articles/careful-prompts/):
+
+| Component | Question to Ask If Missing |
+|-----------|---------------------------|
+| **C**ontext | "What's the background? (project type, user needs, constraints)" |
+| **A**sk | "What specific output do you need? (format, scope, deliverable)" |
+| **R**ules | "Any constraints? (style guide, dependencies, performance limits)" |
+| **E**xamples | "Can you show an example of what you want? (or what you don't want)" |
+
+If a request is vague, ask for the missing CARE components rather than guessing.
+
 ## Shell & Path Handling
 
 ### Cross-Platform Paths
