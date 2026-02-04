@@ -1,6 +1,6 @@
-# Claude Guidance Templates
+# Claude Context Templates
 
-Ready-to-use AI guidance files for development projects.
+Ready-to-use AI context files for development projects.
 
 ## Files
 
@@ -23,7 +23,7 @@ In your project's CLAUDE.md, use the `@import` syntax to include the guidance:
 
 ## Universal Guidance
 
-@.planet-smars/templates/claude-guidance/CLAUDE.md
+@.planet-smars/templates/claude-context/CLAUDE.md
 
 ---
 

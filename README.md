@@ -11,7 +11,7 @@ Reusable project scaffolding and configuration templates.
 | Template | Description |
 |----------|-------------|
 | `a11y-audit/` | Playwright + axe-core accessibility audit |
-| `claude-guidance/` | Universal AI assistant guidance (CLAUDE.md, copilot-instructions) |
+| `claude-context/` | Universal AI assistant context (CLAUDE.md, copilot-instructions) |
 | `github-workflows/` | GitHub Actions for CI and deployment |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter |
 
@@ -29,7 +29,7 @@ In your project's CLAUDE.md, use the `@import` syntax:
 ```markdown
 # My Project
 
-@.planet-smars/templates/claude-guidance/CLAUDE.md
+@.planet-smars/templates/claude-context/CLAUDE.md
 
 ## Project-Specific Context
 ...

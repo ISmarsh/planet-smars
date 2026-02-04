@@ -7,15 +7,15 @@ Reusable project scaffolding and configuration templates.
 | Template | Description | Usage |
 |----------|-------------|-------|
 | `a11y-audit/` | Playwright + axe-core accessibility audit | Copy to `scripts/` |
-| `claude-guidance/` | AI assistant guidance (CLAUDE.md, copilot-instructions) | Submodule or copy |
+| `claude-context/` | AI assistant context (CLAUDE.md, copilot-instructions) | Submodule or copy |
 | `github-workflows/` | GitHub Actions for CI and deployment | Copy to `.github/workflows/` |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter | Copy and customize |
 
 ---
 
-## claude-guidance
+## claude-context
 
-Universal AI assistant guidance for development projects.
+Universal AI assistant context for development projects.
 
 ### Contents
 
@@ -33,14 +33,14 @@ Universal AI assistant guidance for development projects.
 git submodule add https://github.com/ISmarsh/planet-smars .planet-smars
 
 # Reference from your CLAUDE.md:
-# > See .planet-smars/templates/claude-guidance/CLAUDE.md for base guidance
+# > See .planet-smars/templates/claude-context/CLAUDE.md for base context
 ```
 
 **Option 2: Direct Copy**
 
 ```bash
-cp templates/claude-guidance/CLAUDE.md .
-cp templates/claude-guidance/copilot-instructions.md .github/
+cp templates/claude-context/CLAUDE.md .
+cp templates/claude-context/copilot-instructions.md .github/
 ```
 
 ---
