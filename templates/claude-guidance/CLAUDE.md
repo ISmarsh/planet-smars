@@ -21,8 +21,13 @@ CLAUDE.md.
 ### Pull Requests
 
 - Keep PRs focused on a single concern
-- Prefer merge commits over squash (preserves granular history)
 - Never force-push to shared branches
+
+### Merging PRs
+
+- **Always use merge commits** (`gh pr merge --merge`), not squash or rebase
+- Preserves individual commit history in main branch
+- Never use `--squash` or `--rebase` unless explicitly requested
 
 ## PR Review Workflow (GitHub CLI)
 
