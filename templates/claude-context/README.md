@@ -64,6 +64,7 @@ Copy the files to your project and customize as needed.
 - **Testing** — Philosophy, patterns for hooks/components/utilities
 - **Code Change Principles** — Do/don't lists, security checklist
 - **Communication Style** — Direct, technical, honest feedback
+- **Workflow Discipline** — Batch context updates, scope creep checkpoints, pre-commit verification
 - **PR Wrap-up Checklist** — Duplication, obsolete code, documentation review
 - **Copilot Auto-Review Workflow** — Triage process, common dismissals
 - **Questions to Ask Pattern** — Clarify before implementing

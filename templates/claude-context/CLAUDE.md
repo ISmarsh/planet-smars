@@ -196,6 +196,29 @@ See `templates/a11y-audit/` for a ready-to-use audit script.
 - Don't over-praise or validate unnecessarily
 - Disagree when warranted — correctness over agreement
 
+## Workflow Discipline
+
+### Batch context updates
+
+When noticing something that should be added to CLAUDE.md during feature work,
+collect it in a todo list instead of editing immediately. At PR wrap-up (or in
+a separate docs PR), batch all context updates into a single commit. This
+prevents documentation churn scattered across feature PRs.
+
+### Scope creep checkpoints
+
+When unrelated work emerges mid-feature, ask: "This is unrelated to [current
+branch purpose]. Defer to a separate PR?" Options:
+- **Defer** — add to a todo/issue for later
+- **Quick-branch** — stash, fix on a new branch, return
+- **Expand scope** — conscious decision, not drift
+
+### Pre-commit verification
+
+Before suggesting a commit for a feature, run the build to catch TypeScript/build
+errors. Tests typically run in CI on every push, so don't run them locally unless
+debugging a specific failure.
+
 ## PR Wrap-up Checklist
 
 Before merging a pull request, consider these checks:
