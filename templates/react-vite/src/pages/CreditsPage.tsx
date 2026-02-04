@@ -18,16 +18,8 @@ export function CreditsPage() {
         </p>
 
         <div className="space-y-3">
-          <LicenseItem
-            name="React"
-            license="MIT"
-            url="https://github.com/facebook/react"
-          />
-          <LicenseItem
-            name="Vite"
-            license="MIT"
-            url="https://github.com/vitejs/vite"
-          />
+          <LicenseItem name="React" license="MIT" url="https://github.com/facebook/react" />
+          <LicenseItem name="Vite" license="MIT" url="https://github.com/vitejs/vite" />
           <LicenseItem
             name="Tailwind CSS"
             license="MIT"
@@ -43,11 +35,7 @@ export function CreditsPage() {
             license="ISC"
             url="https://github.com/lucide-icons/lucide"
           />
-          <LicenseItem
-            name="Sonner"
-            license="MIT"
-            url="https://github.com/emilkowalski/sonner"
-          />
+          <LicenseItem name="Sonner" license="MIT" url="https://github.com/emilkowalski/sonner" />
         </div>
       </section>
 
@@ -59,7 +47,7 @@ export function CreditsPage() {
         </p>
       </section>
     </div>
-  )
+  );
 }
 
 function LicenseItem({ name, license, url }: { name: string; license: string; url: string }) {
@@ -77,5 +65,5 @@ function LicenseItem({ name, license, url }: { name: string; license: string; ur
         <span className="text-muted-foreground ml-2 text-sm">({license})</span>
       </div>
     </div>
-  )
+  );
 }

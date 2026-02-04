@@ -18,16 +18,18 @@ npm run dev
 
 ## What's Included
 
-| Feature | Implementation |
-|---------|----------------|
-| **React 19** | Latest with hooks |
-| **Vite** | Fast dev server, optimized builds |
-| **TypeScript** | Strict mode, path aliases (`@/`) |
-| **Tailwind CSS** | With CSS variable theming |
-| **Dark mode** | `useTheme` hook + class strategy |
-| **React Router** | v7 with layout routes |
-| **Testing** | Vitest + Testing Library |
-| **Linting** | ESLint + jsx-a11y |
+| Feature          | Implementation                              |
+| ---------------- | ------------------------------------------- |
+| **React 19**     | Latest with hooks                           |
+| **Vite**         | Fast dev server, optimized builds           |
+| **TypeScript**   | Strict mode, path aliases (`@/`)            |
+| **Tailwind CSS** | With CSS variable theming                   |
+| **Dark mode**    | `useTheme` hook + class strategy            |
+| **React Router** | v7 with layout routes                       |
+| **Testing**      | Vitest + Testing Library                    |
+| **Linting**      | ESLint + jsx-a11y                           |
+| **Formatting**   | Prettier + Tailwind class sorting           |
+| **Git hooks**    | Husky + lint-staged (auto-format on commit) |
 
 ## Project Structure
 
@@ -64,12 +66,14 @@ After copying this template:
 ## Scripts
 
 ```bash
-npm run dev       # Start dev server (port 5173)
-npm run build     # Build for production
-npm run preview   # Preview production build
-npm run lint      # Run ESLint
-npm run test      # Run tests in watch mode
-npm run test:run  # Run tests once
+npm run dev          # Start dev server (port 5173)
+npm run build        # Build for production
+npm run preview      # Preview production build
+npm run lint         # Run ESLint
+npm run format       # Format all files with Prettier
+npm run format:check # Check formatting without writing
+npm run test         # Run tests in watch mode
+npm run test:run     # Run tests once
 ```
 
 ## Theming
@@ -79,10 +83,10 @@ for easy customization:
 
 ```css
 :root {
-  --primary: 221.2 83.2% 53.3%;  /* Blue */
+  --primary: 221.2 83.2% 53.3%; /* Blue */
 }
 .dark {
-  --primary: 217.2 91.2% 59.8%;  /* Lighter blue for dark mode */
+  --primary: 217.2 91.2% 59.8%; /* Lighter blue for dark mode */
 }
 ```
 
@@ -95,7 +99,7 @@ Tailwind maps these to utility classes: `bg-primary`, `text-primary-foreground`,
 Toggle light/dark mode with localStorage persistence:
 
 ```tsx
-const { theme, toggleTheme } = useTheme()
+const { theme, toggleTheme } = useTheme();
 ```
 
 ### `useModalState<T>`
@@ -103,13 +107,15 @@ const { theme, toggleTheme } = useTheme()
 Generic modal state that holds the displayed item:
 
 ```tsx
-const modal = useModalState<User>()
+const modal = useModalState<User>();
 
 // Open with data
-modal.open(user)
+modal.open(user);
 
 // Render
-{modal.item && <UserModal user={modal.item} onClose={modal.close} />}
+{
+  modal.item && <UserModal user={modal.item} onClose={modal.close} />;
+}
 ```
 
 ## Adding shadcn/ui Components
@@ -126,6 +132,7 @@ npx shadcn@latest add button
 ### GitHub Pages
 
 1. Update `base` in `vite.config.ts`:
+
    ```ts
    base: command === 'build' ? '/your-repo-name/' : '/',
    ```

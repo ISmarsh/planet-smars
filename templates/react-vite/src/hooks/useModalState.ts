@@ -11,30 +11,30 @@
  *   // render: {modal.item && <Modal item={modal.item} onClose={modal.close} />}
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react';
 
 export interface ModalState<T> {
-  item: T | null
-  isOpen: boolean
-  open: (item: T) => void
-  close: () => void
+  item: T | null;
+  isOpen: boolean;
+  open: (item: T) => void;
+  close: () => void;
 }
 
 export function useModalState<T>(): ModalState<T> {
-  const [item, setItem] = useState<T | null>(null)
+  const [item, setItem] = useState<T | null>(null);
 
   const open = useCallback((newItem: T) => {
-    setItem(newItem)
-  }, [])
+    setItem(newItem);
+  }, []);
 
   const close = useCallback(() => {
-    setItem(null)
-  }, [])
+    setItem(null);
+  }, []);
 
   return {
     item,
     isOpen: item !== null,
     open,
     close,
-  }
+  };
 }

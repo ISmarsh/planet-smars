@@ -1,8 +1,8 @@
-import { Routes, Route } from 'react-router-dom'
-import { Toaster } from 'sonner'
-import { Layout } from './components/Layout'
-import { HomePage } from './pages/HomePage'
-import { CreditsPage } from './pages/CreditsPage'
+import { Routes, Route } from 'react-router-dom';
+import { Toaster } from 'sonner';
+import { Layout } from './components/Layout';
+import { HomePage } from './pages/HomePage';
+import { CreditsPage } from './pages/CreditsPage';
 
 export default function App() {
   return (
@@ -15,5 +15,5 @@ export default function App() {
       </Routes>
       <Toaster position="bottom-center" />
     </>
-  )
+  );
 }

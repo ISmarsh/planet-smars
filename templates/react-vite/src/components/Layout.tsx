@@ -1,12 +1,12 @@
-import { Outlet, Link } from 'react-router-dom'
-import { Github, Moon, Sun } from 'lucide-react'
-import { useTheme } from '@/hooks/useTheme'
+import { Outlet, Link } from 'react-router-dom';
+import { Github, Moon, Sun } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
 
 // TODO: Update with your GitHub repo URL
-const GITHUB_URL = 'https://github.com/YOUR_USERNAME/YOUR_REPO'
+const GITHUB_URL = 'https://github.com/YOUR_USERNAME/YOUR_REPO';
 
 export function Layout() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -58,5 +58,5 @@ export function Layout() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
