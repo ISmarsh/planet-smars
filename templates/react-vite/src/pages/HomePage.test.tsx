@@ -17,7 +17,7 @@ describe('HomePage', () => {
     renderWithRouter(<HomePage />);
 
     const cards = screen.getAllByTestId('feature-card');
-    expect(cards.length).toBeGreaterThan(0);
+    expect(cards).toHaveLength(4);
   });
 
   it('renders the getting started section', () => {

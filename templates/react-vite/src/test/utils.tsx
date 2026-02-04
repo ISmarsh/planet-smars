@@ -7,8 +7,8 @@ import { BrowserRouter } from 'react-router-dom';
  */
 export function renderWithRouter(ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
   return render(ui, {
-    wrapper: ({ children }) => <BrowserRouter>{children}</BrowserRouter>,
     ...options,
+    wrapper: ({ children }) => <BrowserRouter>{children}</BrowserRouter>,
   });
 }
 
