@@ -7,40 +7,44 @@ Reusable project scaffolding and configuration templates.
 | Template | Description | Usage |
 |----------|-------------|-------|
 | `a11y-audit/` | Playwright + axe-core accessibility audit | Copy to `scripts/` |
-| `claude-context/` | AI assistant context (CLAUDE.md, copilot-instructions) | Submodule or copy |
+| `ai-context/` | Cross-tool AI context (AGENTS.md + CLAUDE.md) | Submodule or copy |
 | `github-workflows/` | GitHub Actions for CI and deployment | Copy to `.github/workflows/` |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter | Copy and customize |
 
 ---
 
-## claude-context
+## ai-context
 
-Universal AI assistant context for development projects.
+Cross-tool AI context following the [AGENTS.md convention](https://github.com/anthropics/agents-md) (60,000+ repos).
 
 ### Contents
 
 | File | Purpose |
 |------|---------|
-| `CLAUDE.md` | Development guidance (Git, PR workflows, code principles, security) |
-| `copilot-instructions.md` | Code review priorities for automated reviewers |
-| `README.md` | Integration instructions |
+| `AGENTS.md` | Cross-tool guidance (Git, testing, PR workflows, security) — works with Cursor, Copilot, Devin, etc. |
+| `CLAUDE.md` | Claude Code-specific config — imports AGENTS.md via `@AGENTS.md` |
+| `copilot-instructions.md` | Code review priorities for GitHub Copilot |
 
 ### Usage
 
-**Option 1: Git Submodule**
+**Option 1: Git Submodule (Recommended)**
 
 ```bash
 git submodule add https://github.com/ISmarsh/planet-smars .planet-smars
+```
 
-# Reference from your CLAUDE.md:
-# > See .planet-smars/templates/claude-context/CLAUDE.md for base context
+In your project's CLAUDE.md:
+
+```markdown
+@.planet-smars/templates/ai-context/CLAUDE.md
 ```
 
 **Option 2: Direct Copy**
 
 ```bash
-cp templates/claude-context/CLAUDE.md .
-cp templates/claude-context/copilot-instructions.md .github/
+cp templates/ai-context/AGENTS.md .
+cp templates/ai-context/CLAUDE.md .
+cp templates/ai-context/copilot-instructions.md .github/
 ```
 
 ---

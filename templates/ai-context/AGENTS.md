@@ -1,8 +1,7 @@
-# Claude Code Guidance
+# AI Coding Agent Guidance
 
-Universal guidance for AI-assisted development. This file provides ready-to-use
-patterns that work across projects. Import or reference from your project-specific
-CLAUDE.md.
+Universal guidance for AI-assisted development. This file follows the
+[AGENTS.md](https://agents.md) convention for cross-tool compatibility.
 
 ## Git Practices
 
@@ -10,7 +9,7 @@ CLAUDE.md.
 
 - Atomic commits: one logical change per commit
 - Message format: imperative mood, explain *why* not just *what*
-- Include `Co-Authored-By: Claude <noreply@anthropic.com>` for AI-assisted commits
+- Include co-author attribution for AI-assisted commits
 
 ### Branches
 
@@ -63,7 +62,6 @@ gh api repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies -f body="Reply text
 ```
 
 Use `databaseId` from GraphQL (numeric) for the REST reply endpoint.
-See **Shell & Path Handling** below for escaping pitfalls with backticks, `$`, and quotes.
 
 ### Resolving threads (batched)
 
@@ -72,6 +70,14 @@ gh api graphql -f query='mutation {
   t1: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
   t2: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
 }'
+```
+
+### Checking CI status
+
+Use `--watch` flag to wait for checks to complete:
+
+```bash
+gh pr checks <PR_NUMBER> --watch
 ```
 
 ### Typical review workflow
@@ -186,21 +192,12 @@ Target **WCAG 2.1 AA** compliance:
 - [ ] ARIA attributes used correctly (prefer semantic HTML first)
 
 **Automated testing:** Use Playwright + axe-core for CI audits.
-See `templates/a11y-audit/` for a ready-to-use audit script.
-
-## Communication Style
-
-- Be direct and technical
-- Explain design decisions when non-obvious
-- Acknowledge trade-offs honestly
-- Don't over-praise or validate unnecessarily
-- Disagree when warranted — correctness over agreement
 
 ## Workflow Discipline
 
 ### Batch context updates
 
-When noticing something that should be added to CLAUDE.md during feature work,
+When noticing something that should be added to context files during feature work,
 collect it in a todo list instead of editing immediately. At PR wrap-up (or in
 a separate docs PR), batch all context updates into a single commit. This
 prevents documentation churn scattered across feature PRs.
@@ -373,26 +370,3 @@ Some Unix tools aren't available by default on Windows:
 | `awk` | Limited in Git Bash | Use dedicated tools or scripting |
 
 Prefer tool-native filtering (e.g., `gh api --jq '.field'`) over piping to `jq`.
-
-## Tool Setup Notes
-
-### GitHub CLI (`gh`)
-
-The `gh` CLI should be available in PATH for PR management, review workflows,
-and GraphQL API access. If running in an environment with limited PATH
-(like some CLI tools), configure hooks to extend PATH on startup.
-
-**Example:** Adding tools via session start hook:
-
-```bash
-#!/bin/bash
-if [ -n "$CLAUDE_ENV_FILE" ]; then
-  # Add CLI tools not found in default PATH
-  if [ -d "/custom/path/to/tool" ]; then
-    echo 'export PATH="$PATH:/custom/path/to/tool"' >> "$CLAUDE_ENV_FILE"
-  fi
-fi
-exit 0
-```
-
-Tools added to `CLAUDE_ENV_FILE` persist for the entire session.
