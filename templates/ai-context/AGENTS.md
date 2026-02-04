@@ -3,6 +3,19 @@
 Universal guidance for AI-assisted development. This file follows the
 [AGENTS.md](https://agents.md) convention for cross-tool compatibility.
 
+## New Project Setup
+
+When initializing a new project with planet-smars as a submodule, follow the
+[INIT.md checklist](../INIT.md) to configure:
+
+1. **CI workflow** — lint, test, build on PRs
+2. **GitHub Pages deployment** (if applicable)
+3. **Branch protection** — require PRs for main
+4. **Copilot auto-review** (optional)
+5. **Accessibility audit** (optional)
+
+This ensures consistent tooling across all projects from day one.
+
 ## Git Practices
 
 ### Commits
@@ -225,6 +238,32 @@ Before suggesting a commit for a feature, run the build to catch TypeScript/buil
 errors. Tests typically run in CI on every push, so don't run them locally unless
 debugging a specific failure.
 
+### Running dev servers
+
+Don't spawn dev servers as background processes. Background processes survive
+editor restarts and can cause issues (port conflicts, folder locks, orphaned processes).
+
+Instead, use **VSCode tasks** (`.vscode/tasks.json`):
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "dev",
+      "type": "npm",
+      "script": "dev",
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": { "reveal": "always", "panel": "dedicated" }
+    }
+  ]
+}
+```
+
+Run via `Tasks: Run Task` or bind to a shortcut. VSCode terminates the process
+when the editor closes, keeping the environment clean.
+
 ## PR Wrap-up Checklist
 
 Before merging a pull request, consider these checks:
@@ -254,7 +293,14 @@ Before merging a pull request, consider these checks:
 - Update architecture docs if structure changed
 - Confirm file listings are accurate
 
-**4. Review comment triage** (if using automated reviewers)
+**4. Attribution & licensing**
+- Update Credits page when adding external data sources (APIs, datasets)
+- Review and follow API/data terms of service (rate limits, attribution, usage restrictions)
+- Include required logos/text for APIs that mandate them (e.g., TMDB)
+- Note fan-curated vs official content to avoid implying endorsement
+- Verify license compatibility before adding dependencies or data sources
+
+**5. Review comment triage** (if using automated reviewers)
 - Categorize comments: fix, dismiss, or already-addressed
 - Reply to each comment explaining the action taken
 - Resolve threads after addressing
@@ -289,10 +335,16 @@ Categorize each comment:
 
 1. **Push fixes before resolving** — if auto-merge is enabled, resolving threads
    can trigger merge before your fix commit lands. Always: fix → push → verify → resolve.
-2. **Never batch-resolve** without reading each comment — Copilot occasionally
+2. **Wait for re-review after pushing fixes** — Copilot reviews each commit separately.
+   After pushing a fix commit, wait for Copilot to review that commit before merging.
+   Use the "Checking if Copilot Review is Complete" commands below to verify.
+3. **Never batch-resolve** without reading each comment — Copilot occasionally
    finds real bugs
-3. **Present dismissals** to user for approval before posting replies
-4. Use the PR Review Workflow above for replying and resolving threads
+4. **Present dismissals** to user for approval before posting replies — even when
+   dismissal seems obvious based on existing patterns
+5. **Confirm merge readiness** — after resolving all threads, verify review is
+   complete for latest commits before merging. Dismissal approval ≠ merge approval.
+6. Use the PR Review Workflow above for replying and resolving threads
 
 ### Checking if Copilot Review is Complete
 
@@ -352,6 +404,27 @@ the [CARE framework](https://www.nngroup.com/articles/careful-prompts/):
 
 If a request is vague, ask for the missing CARE components rather than guessing.
 
+## Markdown Conventions
+
+### Sequential Steps
+
+For sequential workflows, avoid numbered headings (`### 1. Step One`). Instead:
+- Use descriptive headings without numbers (`### Check Current State`)
+- Add "Follow these steps in order:" at the top if sequence matters
+- Let the document order convey the sequence
+
+This avoids renumbering when steps are added/removed/reordered.
+
+### Auto-Numbered Lists
+
+Markdown auto-numbers list items when you use `1.` repeatedly:
+```markdown
+1. First item
+1. Second item
+1. Third item
+```
+Renders as 1, 2, 3. This only works for list items, not headings.
+
 ## Shell & Path Handling
 
 ### Cross-Platform Paths
@@ -410,6 +483,42 @@ cd /path && npm install
 | Command not found | Check PATH, use full path |
 | Unexpected token | Escape special chars (`$`, `` ` ``, `"`) |
 | Heredoc issues | Use `<<'EOF'` (quoted) to prevent expansion |
+| Unexpected EOF with quoted paths | Trailing `\` before `"` escapes the quote; use PowerShell or forward slashes |
+
+**Trailing backslash issue:** Windows paths ending in `\` cause "unexpected EOF" errors:
+```bash
+# Bad - \' escapes the closing quote
+ls "C:\path\to\dir\"
+
+# Good - use PowerShell for Windows paths
+powershell -Command "Get-ChildItem 'C:\path\to\dir'"
+
+# Good - or use forward slashes
+ls "C:/path/to/dir/"
+```
+
+### PowerShell from Bash
+
+When calling PowerShell from bash-like shells, variable syntax gets mangled:
+
+```bash
+# Bad - $_ becomes 'extglob' or similar garbage
+powershell -Command "Get-ChildItem | Where-Object { $_.Name -like '*foo*' }"
+
+# Good - avoid inline PowerShell filtering, use simpler commands
+powershell -Command "Get-ChildItem -Filter '*foo*'"
+
+# Good - or pipe through bash tools
+powershell -Command "Get-ChildItem" | grep foo
+```
+
+The `$_` variable (and other `$` variables) in PowerShell commands passed through bash
+get interpreted by bash first, causing errors like `extglob.Name: command not found`.
+
+**Workarounds:**
+- Use PowerShell's parameter-based filtering (`-Filter`, `-Include`) instead of `Where-Object`
+- Use simpler PowerShell commands and filter with bash tools (`grep`, `awk`)
+- For complex PowerShell logic, write a `.ps1` script file and invoke it
 
 ### Cross-Platform Tool Availability
 
