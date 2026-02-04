@@ -3,6 +3,7 @@ node_modules
 
 # Build output
 dist
+*.tsbuildinfo
 
 # Environment
 .env
@@ -12,6 +13,8 @@ dist
 # Editor
 .vscode/*
 !.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea
 
 # OS

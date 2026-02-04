@@ -1,0 +1,31 @@
+{
+  "name": "Copilot Auto Review",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {
+    "ref_name": {
+      "exclude": [],
+      "include": ["~DEFAULT_BRANCH"]
+    }
+  },
+  "rules": [
+    {
+      "type": "copilot_code_review",
+      "parameters": {
+        "review_on_push": true,
+        "review_draft_pull_requests": false
+      }
+    },
+    {
+      "type": "copilot_code_review_analysis_tools",
+      "parameters": {
+        "tools": [
+          { "name": "CodeQL" },
+          { "name": "ESLint" },
+          { "name": "PMD" }
+        ]
+      }
+    }
+  ],
+  "bypass_actors": []
+}
