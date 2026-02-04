@@ -1,7 +1,6 @@
 ---
 name: pr-flow
 description: Create a PR with standard workflow (branch, commit, push, PR, watch checks)
-disable-model-invocation: true
 allowed-tools:
   - Bash(git *)
   - Bash(gh *)
