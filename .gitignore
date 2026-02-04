@@ -20,3 +20,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Template testing artifacts
+templates/*/package-lock.json

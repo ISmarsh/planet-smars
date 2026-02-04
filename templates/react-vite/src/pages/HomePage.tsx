@@ -37,7 +37,7 @@ export function HomePage() {
 
 function FeatureCard({ title, description }: { title: string; description: string }) {
   return (
-    <div className="p-4 border border-border rounded-lg bg-card">
+    <div data-testid="feature-card" className="p-4 border border-border rounded-lg bg-card">
       <h3 className="font-semibold text-card-foreground">{title}</h3>
       <p className="text-sm text-muted-foreground mt-1">{description}</p>
     </div>

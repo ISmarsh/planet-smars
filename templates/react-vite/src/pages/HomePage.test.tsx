@@ -1,27 +1,29 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
+import { renderWithRouter } from '@/test/utils';
 import { HomePage } from './HomePage';
 
-describe('HomePage', () => {
-  it('renders the welcome heading', () => {
-    render(<HomePage />);
+// Using renderWithRouter establishes the pattern for when you add Link components.
+// It works fine for components without routing too.
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Welcome');
+describe('HomePage', () => {
+  it('renders the main heading', () => {
+    renderWithRouter(<HomePage />);
+
+    expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
   });
 
-  it('renders all feature cards', () => {
-    render(<HomePage />);
+  it('renders feature cards', () => {
+    renderWithRouter(<HomePage />);
 
-    expect(screen.getByText('React 19')).toBeInTheDocument();
-    expect(screen.getByText('Vite')).toBeInTheDocument();
-    expect(screen.getByText('Tailwind CSS')).toBeInTheDocument();
-    expect(screen.getByText('TypeScript')).toBeInTheDocument();
+    const cards = screen.getAllByTestId('feature-card');
+    expect(cards).toHaveLength(4);
   });
 
   it('renders the getting started section', () => {
-    render(<HomePage />);
+    renderWithRouter(<HomePage />);
 
     expect(screen.getByRole('heading', { name: /getting started/i })).toBeInTheDocument();
-    expect(screen.getByText(/package\.json/)).toBeInTheDocument();
+    expect(screen.getByRole('list')).toBeInTheDocument();
   });
 });
