@@ -285,6 +285,33 @@ Categorize each comment:
 2. **Present dismissals** to user for approval before posting replies
 3. Use the PR Review Workflow above for replying and resolving threads
 
+### Checking if Copilot Review is Complete
+
+Copilot reviews can take 30-60 seconds. To check if the latest commit has been reviewed:
+
+```bash
+# Get the latest commit SHA on the PR branch
+LATEST_COMMIT=$(gh pr view <PR_NUMBER> --json headRefOid -q .headRefOid)
+
+# Get the commit SHA of Copilot's most recent review
+REVIEWED_COMMIT=$(gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews \
+  --jq '[.[] | select(.user.login | contains("copilot"))] | last | .commit_id')
+
+# Compare them
+if [ "$LATEST_COMMIT" = "$REVIEWED_COMMIT" ]; then
+  echo "Review complete"
+else
+  echo "Review pending or not triggered"
+fi
+```
+
+Or in a single line to check:
+```bash
+gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews --jq 'map(select(.user.login | contains("copilot"))) | last | .commit_id'
+```
+
+Compare this to the current HEAD. If they match, the review is complete.
+
 ### If Copilot Doesn't Review
 
 Sometimes skips commits (small changes, rapid pushes). Manually trigger via
