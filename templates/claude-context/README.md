@@ -25,15 +25,18 @@ In your project's CLAUDE.md, use the `@import` syntax to include the guidance:
 
 @.planet-smars/templates/claude-context/CLAUDE.md
 
+> *[View shared context](.planet-smars/templates/claude-context/CLAUDE.md) — git, testing, PR workflows*
+
 ---
 
 ## Project-Specific Context
 
-[Your project-specific guidance here]
+[Your project-specific context here]
 ```
 
 **Important:** The `@path/to/file` syntax is how Claude Code imports content.
 Regular markdown links (`[text](url)`) are just text - they won't be followed.
+The blockquote link above is for human readers who want to browse the shared file.
 
 #### Auto-init Submodules
 
