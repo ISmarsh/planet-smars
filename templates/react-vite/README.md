@@ -114,7 +114,7 @@ modal.open(user);
 
 // Render
 {
-  modal.item && <UserModal user={modal.item} onClose={modal.close} />;
+  modal.item && <UserModal user={modal.item} onClose={modal.close} />
 }
 ```
 
