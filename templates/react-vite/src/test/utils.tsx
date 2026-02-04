@@ -1,4 +1,4 @@
-import { render, RenderOptions, screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 
 /**
@@ -15,4 +15,4 @@ export function renderWithRouter(ui: React.ReactElement, options?: Omit<RenderOp
   });
 }
 
-export { render, screen, fireEvent, waitFor, within };
+export { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
