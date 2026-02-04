@@ -14,6 +14,7 @@ Reusable project scaffolding and configuration templates.
 | `ai-context/` | Cross-tool AI context (AGENTS.md + CLAUDE.md, copilot-instructions) |
 | `github-workflows/` | GitHub Actions for CI and deployment |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter |
+| `skills/` | Claude Code skills (pr-flow, etc.) |
 
 ## Usage
 

@@ -10,6 +10,7 @@ Reusable project scaffolding and configuration templates.
 | `ai-context/` | Cross-tool AI context (AGENTS.md + CLAUDE.md) | Submodule or copy |
 | `github-workflows/` | GitHub Actions for CI and deployment | Copy to `.github/workflows/` |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter | Copy and customize |
+| `skills/` | Claude Code skills (custom slash commands) | Copy to `~/.claude/skills/` |
 
 ---
 
@@ -108,6 +109,33 @@ After copying:
 4. Update license info in `src/pages/CreditsPage.tsx`
 
 See `react-vite/README.md` for full documentation.
+
+---
+
+## skills
+
+Claude Code skills (custom slash commands) for common workflows.
+
+### Contents
+
+| Skill | Description |
+|-------|-------------|
+| `pr-flow/` | Create PR with full workflow (branch, commit, push, PR, watch checks) |
+
+### Usage
+
+```bash
+# Copy to personal skills (all projects)
+cp -r templates/skills/pr-flow ~/.claude/skills/
+
+# Or copy to project skills (single project)
+mkdir -p .claude/skills
+cp -r templates/skills/pr-flow .claude/skills/
+```
+
+Then invoke with `/pr-flow` in Claude Code.
+
+See `skills/README.md` for creating custom skills.
 
 ---
 
