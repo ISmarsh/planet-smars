@@ -23,6 +23,7 @@ In your project's CLAUDE.md, use the `@import` syntax to include the guidance:
 
 ## Universal Guidance
 
+<!-- @import: Claude Code includes this file's content -->
 @.planet-smars/templates/claude-context/CLAUDE.md
 
 > *[View shared context](.planet-smars/templates/claude-context/CLAUDE.md) — git, testing, PR workflows*
