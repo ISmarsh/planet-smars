@@ -28,7 +28,7 @@ Universal AI assistant guidance for development projects.
 **Option 1: Git Submodule**
 
 ```bash
-git submodule add https://github.com/smarshian/planet-smars .planet-smars
+git submodule add https://github.com/ISmarsh/planet-smars .planet-smars
 
 # Reference from your CLAUDE.md:
 # > See .planet-smars/templates/claude-guidance/CLAUDE.md for base guidance

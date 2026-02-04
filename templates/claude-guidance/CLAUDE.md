@@ -57,10 +57,8 @@ Filter results for `isResolved: false`.
 gh api repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies -f body="Reply text"
 ```
 
-**Escaping pitfalls:**
-- Avoid backticks in reply text — the shell interprets them
-- Use `databaseId` from GraphQL (numeric) for the REST reply endpoint
-- Double quotes and `$` also cause issues; use single quotes or escape
+Use `databaseId` from GraphQL (numeric) for the REST reply endpoint.
+See **Shell & Path Handling** below for escaping pitfalls with backticks, `$`, and quotes.
 
 ### Resolving threads (batched)
 
@@ -154,7 +152,9 @@ it('handles edge cases', () => {
 - Create helpers or utilities for one-time operations
 - Add comments explaining obvious code
 - Add type annotations to code you didn't change
-- Suggest performance optimizations without measured need
+- Optimize prematurely without measurements
+- Add dependencies without justification
+- Sacrifice clarity for brevity
 - Add backwards-compatibility shims — just change the code
 - Leave `// removed` comments or rename unused variables to `_var`
 
@@ -209,17 +209,6 @@ Before merging a pull request, consider these checks:
 - Reply to each comment explaining the action taken
 - Resolve threads after addressing
 - Present dismissals for approval before resolving
-
-## Development Anti-patterns to Avoid
-
-- Don't add complex abstractions too early
-- Don't over-engineer — keep solutions simple
-- Don't add dependencies without justification
-- Don't sacrifice clarity for brevity
-- Don't create utilities for one-time operations
-- Don't optimize prematurely without measurements
-- Don't refactor unrelated code during bug fixes
-- Don't add features beyond what was requested
 
 ## Questions to Ask Pattern
 
