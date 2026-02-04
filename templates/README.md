@@ -6,6 +6,7 @@ Reusable project scaffolding and configuration templates.
 
 | Template | Description | Usage |
 |----------|-------------|-------|
+| `a11y-audit/` | Playwright + axe-core accessibility audit | Copy to `scripts/` |
 | `claude-guidance/` | AI assistant guidance (CLAUDE.md, copilot-instructions) | Submodule or copy |
 | `github-workflows/` | GitHub Actions for CI and deployment | Copy to `.github/workflows/` |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter | Copy and customize |
