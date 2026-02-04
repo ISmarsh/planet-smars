@@ -11,6 +11,7 @@ Reusable project scaffolding and configuration templates.
 | Template | Description |
 |----------|-------------|
 | `claude-guidance/` | Universal AI assistant guidance (CLAUDE.md, copilot-instructions) |
+| `github-workflows/` | GitHub Actions for CI and deployment |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter |
 
 ## Usage
@@ -19,7 +20,7 @@ Reusable project scaffolding and configuration templates.
 
 ```bash
 # Add to your project
-git submodule add https://github.com/smarshian/planet-smars .planet-smars
+git submodule add https://github.com/ISmarsh/planet-smars .planet-smars
 
 # Reference templates from your project files
 # In CLAUDE.md: "See .planet-smars/templates/claude-guidance/CLAUDE.md"
