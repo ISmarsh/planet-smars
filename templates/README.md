@@ -120,7 +120,7 @@ Claude Code skills (custom slash commands) for common workflows.
 
 | Skill | Description |
 |-------|-------------|
-| `pr-flow/` | Create PR with full workflow (branch, commit, push, PR, watch checks) |
+| `pr-flow/` | Create PR with full workflow (branch, commit, push, PR, checks, reviews) |
 
 ### Usage
 
