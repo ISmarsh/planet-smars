@@ -2,6 +2,8 @@
 
 Reusable project scaffolding and configuration templates.
 
+**Starting a new project?** Follow the [INIT.md checklist](INIT.md) for step-by-step setup.
+
 ## Available Templates
 
 | Template | Description | Usage |

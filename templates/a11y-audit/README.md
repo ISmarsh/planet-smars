@@ -85,26 +85,8 @@ Summary: 8 audits, 0 total violations (0 unique rules)
 
 ## CI Integration
 
-Add to your GitHub Actions workflow:
-
-```yaml
-a11y:
-  runs-on: ubuntu-latest
-  steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    - run: npm ci
-    - run: npx playwright install chromium --with-deps
-    - run: npm run audit:a11y
-    - uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: axe-audit-results
-        path: axe-audit.json
-```
+See [github-workflows/README.md](../github-workflows/README.md#adding-tests-to-ci) for the
+a11y job configuration to add to your CI workflow.
 
 ## Customization
 

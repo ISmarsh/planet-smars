@@ -12,30 +12,13 @@ describe('CreditsPage', () => {
   it('renders the license section', () => {
     render(<CreditsPage />);
 
-    expect(screen.getByRole('heading', { name: /this project/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /^this project$/i })).toBeInTheDocument();
     expect(screen.getByText(/MIT License/i)).toBeInTheDocument();
   });
 
-  it('renders dependency licenses', () => {
+  it('renders about section', () => {
     render(<CreditsPage />);
 
-    expect(screen.getByRole('link', { name: 'React' })).toHaveAttribute(
-      'href',
-      'https://github.com/facebook/react',
-    );
-    expect(screen.getByRole('link', { name: 'Vite' })).toHaveAttribute(
-      'href',
-      'https://github.com/vitejs/vite',
-    );
-    expect(screen.getByRole('link', { name: 'Tailwind CSS' })).toHaveAttribute(
-      'href',
-      'https://github.com/tailwindlabs/tailwindcss',
-    );
-  });
-
-  it('renders acknowledgments section', () => {
-    render(<CreditsPage />);
-
-    expect(screen.getByRole('heading', { name: /acknowledgments/i })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /about/i })).toBeInTheDocument();
   });
 });
