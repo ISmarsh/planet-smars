@@ -16,8 +16,7 @@ describe('HomePage', () => {
   it('renders feature cards', () => {
     renderWithRouter(<HomePage />);
 
-    // Check that cards render by looking for their container structure
-    const cards = document.querySelectorAll('.border.border-border.rounded-lg');
+    const cards = screen.getAllByTestId('feature-card');
     expect(cards.length).toBeGreaterThan(0);
   });
 
