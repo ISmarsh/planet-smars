@@ -90,10 +90,3 @@ gh pr checks --watch
 ```
 
 Report final status to user.
-
-## Important
-
-- Use merge commits, not squash (per project convention)
-- Always include Co-Authored-By trailer
-- Don't push to main/master directly
-- Run dismissals by user before applying Copilot suggestions

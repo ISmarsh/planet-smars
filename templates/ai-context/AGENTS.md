@@ -74,11 +74,13 @@ gh api graphql -f query='mutation {
 
 ### Checking CI status
 
-Use `--watch` flag to wait for checks to complete:
+**Default approach:** Use `--watch` to wait for checks to complete:
 
 ```bash
 gh pr checks <PR_NUMBER> --watch
 ```
+
+This is the preferred method — no polling or manual refresh needed.
 
 ### Typical review workflow
 
