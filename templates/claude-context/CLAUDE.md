@@ -339,6 +339,18 @@ cd /path && npm install
 | Unexpected token | Escape special chars (`$`, `` ` ``, `"`) |
 | Heredoc issues | Use `<<'EOF'` (quoted) to prevent expansion |
 
+### Cross-Platform Tool Availability
+
+Some Unix tools aren't available by default on Windows:
+
+| Tool | Status | Alternative |
+|------|--------|-------------|
+| `jq` | Not on Windows Git Bash | Use `--jq` flag with `gh` CLI, or PowerShell's `ConvertFrom-Json` |
+| `sed` | Limited in Git Bash | Use dedicated Edit tool or PowerShell |
+| `awk` | Limited in Git Bash | Use dedicated tools or scripting |
+
+Prefer tool-native filtering (e.g., `gh api --jq '.field'`) over piping to `jq`.
+
 ## Tool Setup Notes
 
 ### GitHub CLI (`gh`)
