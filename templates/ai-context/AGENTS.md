@@ -280,10 +280,12 @@ Categorize each comment:
 
 ### Resolution
 
-1. **Never batch-resolve** without reading each comment — Copilot occasionally
+1. **Push fixes before resolving** — if auto-merge is enabled, resolving threads
+   can trigger merge before your fix commit lands. Always: fix → push → verify → resolve.
+2. **Never batch-resolve** without reading each comment — Copilot occasionally
    finds real bugs
-2. **Present dismissals** to user for approval before posting replies
-3. Use the PR Review Workflow above for replying and resolving threads
+3. **Present dismissals** to user for approval before posting replies
+4. Use the PR Review Workflow above for replying and resolving threads
 
 ### Checking if Copilot Review is Complete
 
