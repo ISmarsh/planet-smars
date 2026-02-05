@@ -90,7 +90,20 @@ The `$_` variable (and other `$` variables) in PowerShell commands passed throug
 **Workarounds:**
 - Use PowerShell's parameter-based filtering (`-Filter`, `-Include`) instead of `Where-Object`
 - Use simpler PowerShell commands and filter with bash tools (`grep`, `awk`)
-- For complex PowerShell logic, write a `.ps1` script file and invoke it
+- For complex PowerShell logic, write a `.ps1` script file and invoke it:
+
+```bash
+# Write script to scratchpad (or temp dir)
+cat > /tmp/my-script.ps1 <<'EOF'
+$value = [Environment]::GetEnvironmentVariable('Path', 'User')
+Write-Host "Current: $value"
+EOF
+
+# Execute — runs in pure PowerShell context, no escaping issues
+powershell -ExecutionPolicy Bypass -File /tmp/my-script.ps1
+```
+
+This is the most reliable approach for anything involving `$` variables, `Where-Object`, or multi-line logic.
 
 ## Cross-Platform Tool Availability
 
