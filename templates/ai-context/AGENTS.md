@@ -3,6 +3,14 @@
 Universal guidance for AI-assisted development. This file follows the
 [AGENTS.md](https://agents.md) convention for cross-tool compatibility.
 
+## Communication Style
+
+- Be direct and technical
+- Explain design decisions when non-obvious
+- Acknowledge trade-offs honestly
+- Don't over-praise or validate unnecessarily
+- Disagree when warranted — correctness over agreement
+
 ## New Project Setup
 
 When initializing a new project with planet-smars as a submodule, follow the

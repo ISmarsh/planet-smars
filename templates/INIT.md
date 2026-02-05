@@ -93,7 +93,28 @@ Add to package.json:
 
 Then add the a11y job to your CI workflow (see github-workflows/README.md).
 
-## 7. VSCode Configuration
+## 7. Claude Code Hooks (one-time machine setup)
+
+Copy hooks to your Claude Code config directory:
+
+```bash
+mkdir -p ~/.claude/hooks
+cp .planet-smars/templates/hooks/*.sh ~/.claude/hooks/
+cp .planet-smars/templates/hooks/*.ps1 ~/.claude/hooks/   # Windows only
+chmod +x ~/.claude/hooks/*.sh
+```
+
+Then add hook registrations to `~/.claude/settings.json` — see
+[hooks/README.md](hooks/README.md) for the full settings block.
+
+**Customize:**
+- `guardrail.sh` — set `PROJECT_ROOT` to your workspace directory
+- `setup-path.sh` — add paths to tools on your machine
+- `notify.ps1` — optionally set `-AppLogo` to a custom icon
+
+This is a one-time setup per machine, not per project.
+
+## 8. VSCode Configuration
 
 Copy debug/task configuration for consistent dev experience:
 
