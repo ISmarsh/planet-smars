@@ -317,13 +317,9 @@ scratchpad (or commit it as a dev tool if it'll be reused across sessions).
 ### Data porting from external sources
 
 When transcribing data from APIs, reference docs, or databases into project
-files, a different class of errors emerges than with cross-references. Run a
-porting accuracy review after writing:
+files, a different class of errors emerges than with cross-references. Run the
+manual content review checklist from **Pre-commit verification** above, plus:
 
-- **No duplicates across categories** — items appearing in multiple tables
-- **Correct categorization** — items placed in the right section/type
-- **Descriptions match behavior** — no contradictory or misleading wording
-- **Consistent empty fields** — explicit "—" for intentionally blank entries
 - **Cross-reference with source** — spot-check a sample against original data
 
 These errors are especially common with large tables transcribed from search
