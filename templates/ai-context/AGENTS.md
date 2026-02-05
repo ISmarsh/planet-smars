@@ -238,6 +238,15 @@ Before suggesting a commit for a feature, run the build to catch TypeScript/buil
 errors. Tests typically run in CI on every push, so don't run them locally unless
 debugging a specific failure.
 
+For non-code projects (markdown, data files, docs-only repos), there's no
+automated lint or build. Run a manual content review instead — this becomes
+the primary quality gate:
+
+- **Duplicates across sections** — same item in two tables/categories
+- **Items in wrong categories** — miscategorized by type or scope
+- **Contradictory descriptions** — wording that doesn't match actual behavior
+- **Inconsistent empty fields** — use explicit "—" vs omitting
+
 ### Running dev servers
 
 Don't spawn dev servers as background processes. Background processes survive
@@ -263,6 +272,93 @@ Instead, use **VSCode tasks** (`.vscode/tasks.json`):
 
 Run via `Tasks: Run Task` or bind to a shortcut. VSCode terminates the process
 when the editor closes, keeping the environment clean.
+
+### Disposable scripts for batch operations
+
+When a task requires bulk changes across data files (renaming IDs, wiring
+cross-references, backfilling fields), write a short disposable script in a
+scratchpad directory rather than making dozens of manual edits:
+
+- **Read → transform → write** in one pass for consistency
+- Print a summary (counts, per-item breakdown, items not found)
+- Keep the script outside the repo — it's a tool, not a deliverable
+- Delete or leave in scratchpad after use; don't commit it
+
+This avoids error-prone repetitive edits and produces an auditable log of what
+changed.
+
+### Verify-iterate cycle
+
+After bulk changes or cross-cutting edits, run validation before committing:
+
+1. Make the change (script, batch edit, refactor)
+1. Run validation (audit script, build, lint, tests)
+1. If issues found, fix and re-validate
+1. Repeat until clean
+
+Don't skip the re-validation step after fixes — secondary changes often
+introduce new issues (e.g., fixing a broken reference reveals a missing field
+elsewhere).
+
+### Data integrity auditing
+
+For projects with cross-referenced data files (e.g., entities referencing each
+other by ID), write an audit script that checks:
+
+- **Broken references** — IDs that don't resolve to existing records
+- **Bidirectional consistency** — if A references B, does B reference A back?
+- **Missing fields** — required or expected data that's empty
+- **Format validation** — IDs, dates, enums match expected patterns
+- **Duplicates** — repeated IDs or conflicting records
+
+Run the audit as part of the verify-iterate cycle. Keep the script in a
+scratchpad (or commit it as a dev tool if it'll be reused across sessions).
+
+### Data porting from external sources
+
+When transcribing data from APIs, reference docs, or databases into project
+files, a different class of errors emerges than with cross-references. Run the
+manual content review checklist from **Pre-commit verification** above, plus:
+
+- **Cross-reference with source** — spot-check a sample against original data
+
+These errors are especially common with large tables transcribed from search
+results or API responses, where items can be miscategorized or duplicated
+across query batches.
+
+### External data sourcing
+
+When gathering data from external sources, prefer structured APIs over web
+scraping:
+
+- **APIs first** — REST, GraphQL, Elasticsearch endpoints return clean,
+  structured data that's easier to validate and transform
+- **Scraping is fragile** — sites frequently block automated requests (403),
+  change markup structure, or require authentication
+- **Search for API alternatives** — many sites with restrictive frontends
+  expose public APIs, data dumps, or partner endpoints (e.g., Wikimedia
+  Commons API instead of scraping a wiki frontend)
+- **Cache API responses** — store raw responses in scratchpad during research
+  to avoid re-querying and hitting rate limits
+
+### Tiered research for large tasks
+
+When a task involves gathering information about many items (characters, APIs,
+dependencies), avoid trying to research everything at once:
+
+1. **Categorize** items by importance or complexity (e.g., tier 1 = essential,
+   tier 2 = important, tier 3 = nice-to-have)
+1. **Present tiers** to the user and let them choose scope
+1. **Parallelize** research within a tier using multiple agents when possible
+1. **Validate** each batch before starting the next
+
+This prevents wasted effort on low-priority items and gives the user control
+over how deep to go.
+
+When parallelizing with subagents, verify completeness of each agent's output
+before incorporating results. Agent outputs can be truncated, incomplete, or
+require follow-up queries. Spot-check that returned data covers the expected
+scope before writing it into project files.
 
 ## PR Wrap-up Checklist
 
@@ -378,6 +474,11 @@ Compare this to the current HEAD. If they match, the review is complete.
 Sometimes skips commits (small changes, rapid pushes). Manually trigger via
 GitHub UI: PR page → Reviewers (right sidebar) → gear icon → select
 "copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
+
+**Don't confuse "pending" with "skipped."** Copilot reviews can take 30-60
+seconds (sometimes longer). If you check immediately after PR creation and get
+no reviews, wait and recheck before concluding it skipped. Only manually
+trigger after at least 2 minutes with no review.
 
 ## Questions to Ask Pattern
 
