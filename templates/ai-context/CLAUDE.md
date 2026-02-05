@@ -41,6 +41,18 @@ Hooks live in `~/.claude/hooks/` (user-global) and are registered in
 `Bash(git push:*)`), hooks are precise (regex on full command). This lets you
 keep convenient auto-approvals while blocking specific dangerous patterns.
 
+**Windows shell behavior:** `CLAUDE_CODE_SHELL` only affects the Bash tool, not
+standalone hook execution. Hooks on PreCompact, Notification, and SessionStart
+events run via cmd.exe. To run `.sh` scripts from these hooks, prefix the
+command with the shell env var:
+
+```json
+"command": "\"%CLAUDE_CODE_SHELL%\" ~/.claude/hooks/my-hook.sh"
+```
+
+PreToolUse/PostToolUse hooks don't need this — they execute within the Bash tool
+context which already uses `CLAUDE_CODE_SHELL`.
+
 ### Tool Setup (Claude Code)
 
 The `gh` CLI should be available in PATH for PR management, review workflows,

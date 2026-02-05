@@ -59,59 +59,11 @@ Prefer rulesets for new repos.
 - Preserves individual commit history in main branch
 - Never use `--squash` or `--rebase` unless explicitly requested
 
-## PR Review Workflow (GitHub CLI)
+## PR Review Workflow
 
-### Fetching unresolved review threads
-
-The REST API (`/pulls/{pr}/comments`) returns all comments with no resolved filter.
-Use GraphQL instead:
-
-```bash
-gh api graphql -f query='query {
-  repository(owner: "OWNER", name: "REPO") {
-    pullRequest(number: PR_NUMBER) {
-      reviewThreads(first: 100) {
-        nodes {
-          id
-          isResolved
-          comments(first: 1) {
-            nodes { body path line databaseId }
-          }
-        }
-      }
-    }
-  }
-}'
-```
-
-Filter results for `isResolved: false`.
-
-### Replying to comments
-
-```bash
-gh api repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies -f body="Reply text"
-```
-
-Use `databaseId` from GraphQL (numeric) for the REST reply endpoint.
-
-### Resolving threads (batched)
-
-```bash
-gh api graphql -f query='mutation {
-  t1: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
-  t2: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
-}'
-```
-
-### Checking CI status
-
-**Default approach:** Use `--watch` to wait for checks to complete:
-
-```bash
-gh pr checks <PR_NUMBER> --watch
-```
-
-This is the preferred method — no polling or manual refresh needed.
+Use `gh pr checks --watch` for CI status. For detailed commands (GraphQL
+queries, thread resolution, Copilot triage and review verification), see
+[pr-workflow.md](pr-workflow.md).
 
 ### Typical review workflow
 
@@ -138,36 +90,8 @@ This is the preferred method — no polling or manual refresh needed.
 - Bug fixes: add a regression test before fixing
 - Refactors: ensure existing tests pass (add coverage if missing)
 
-### Testing Patterns
-
-**React hooks:**
-```typescript
-import { renderHook, act } from '@testing-library/react'
-
-it('updates state correctly', () => {
-  const { result } = renderHook(() => useMyHook())
-  act(() => { result.current.doSomething() })
-  expect(result.current.value).toBe('expected')
-})
-```
-
-**Components:**
-```typescript
-import { render, screen } from '@testing-library/react'
-
-it('renders the expected content', () => {
-  render(<MyComponent />)
-  expect(screen.getByRole('heading')).toHaveTextContent('Title')
-})
-```
-
-**Utilities:**
-```typescript
-it('handles edge cases', () => {
-  expect(myUtil(null)).toBe('default')
-  expect(myUtil('input')).toBe('output')
-})
-```
+For code examples (hooks, components, utilities), see
+[testing.md](testing.md).
 
 ### What Not to Test
 
@@ -267,116 +191,19 @@ the primary quality gate:
 
 ### Running dev servers
 
-Don't spawn dev servers as background processes. Background processes survive
-editor restarts and can cause issues (port conflicts, folder locks, orphaned processes).
+Don't spawn dev servers as background processes — they survive editor restarts
+and cause port conflicts. Use VSCode tasks (`.vscode/tasks.json`) instead;
+VSCode terminates them when the editor closes.
 
-Instead, use **VSCode tasks** (`.vscode/tasks.json`):
+### Data workflows
 
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "dev",
-      "type": "npm",
-      "script": "dev",
-      "problemMatcher": [],
-      "isBackground": true,
-      "presentation": { "reveal": "always", "panel": "dedicated" }
-    }
-  ]
-}
-```
+For batch operations, use disposable scripts (scratchpad, not committed).
+Prefer APIs over scraping. Validate after every change (verify-iterate cycle).
+Tier large research tasks by priority.
 
-Run via `Tasks: Run Task` or bind to a shortcut. VSCode terminates the process
-when the editor closes, keeping the environment clean.
-
-### Disposable scripts for batch operations
-
-When a task requires bulk changes across data files (renaming IDs, wiring
-cross-references, backfilling fields), write a short disposable script in a
-scratchpad directory rather than making dozens of manual edits:
-
-- **Read → transform → write** in one pass for consistency
-- Print a summary (counts, per-item breakdown, items not found)
-- Keep the script outside the repo — it's a tool, not a deliverable
-- Delete or leave in scratchpad after use; don't commit it
-
-This avoids error-prone repetitive edits and produces an auditable log of what
-changed.
-
-### Verify-iterate cycle
-
-After bulk changes or cross-cutting edits, run validation before committing:
-
-1. Make the change (script, batch edit, refactor)
-1. Run validation (audit script, build, lint, tests)
-1. If issues found, fix and re-validate
-1. Repeat until clean
-
-Don't skip the re-validation step after fixes — secondary changes often
-introduce new issues (e.g., fixing a broken reference reveals a missing field
-elsewhere).
-
-### Data integrity auditing
-
-For projects with cross-referenced data files (e.g., entities referencing each
-other by ID), write an audit script that checks:
-
-- **Broken references** — IDs that don't resolve to existing records
-- **Bidirectional consistency** — if A references B, does B reference A back?
-- **Missing fields** — required or expected data that's empty
-- **Format validation** — IDs, dates, enums match expected patterns
-- **Duplicates** — repeated IDs or conflicting records
-
-Run the audit as part of the verify-iterate cycle. Keep the script in a
-scratchpad (or commit it as a dev tool if it'll be reused across sessions).
-
-### Data porting from external sources
-
-When transcribing data from APIs, reference docs, or databases into project
-files, a different class of errors emerges than with cross-references. Run the
-manual content review checklist from **Pre-commit verification** above, plus:
-
-- **Cross-reference with source** — spot-check a sample against original data
-
-These errors are especially common with large tables transcribed from search
-results or API responses, where items can be miscategorized or duplicated
-across query batches.
-
-### External data sourcing
-
-When gathering data from external sources, prefer structured APIs over web
-scraping:
-
-- **APIs first** — REST, GraphQL, Elasticsearch endpoints return clean,
-  structured data that's easier to validate and transform
-- **Scraping is fragile** — sites frequently block automated requests (403),
-  change markup structure, or require authentication
-- **Search for API alternatives** — many sites with restrictive frontends
-  expose public APIs, data dumps, or partner endpoints (e.g., Wikimedia
-  Commons API instead of scraping a wiki frontend)
-- **Cache API responses** — store raw responses in scratchpad during research
-  to avoid re-querying and hitting rate limits
-
-### Tiered research for large tasks
-
-When a task involves gathering information about many items (characters, APIs,
-dependencies), avoid trying to research everything at once:
-
-1. **Categorize** items by importance or complexity (e.g., tier 1 = essential,
-   tier 2 = important, tier 3 = nice-to-have)
-1. **Present tiers** to the user and let them choose scope
-1. **Parallelize** research within a tier using multiple agents when possible
-1. **Validate** each batch before starting the next
-
-This prevents wasted effort on low-priority items and gives the user control
-over how deep to go.
-
-When parallelizing with subagents, verify completeness of each agent's output
-before incorporating results. Agent outputs can be truncated, incomplete, or
-require follow-up queries. Spot-check that returned data covers the expected
-scope before writing it into project files.
+See [data-practices.md](data-practices.md) for detailed patterns: disposable
+scripts, verify-iterate cycles, data integrity auditing, external data
+sourcing, and tiered research.
 
 ## PR Wrap-up Checklist
 
@@ -419,84 +246,6 @@ Before merging a pull request, consider these checks:
 - Reply to each comment explaining the action taken
 - Resolve threads after addressing
 - Present dismissals for approval before resolving
-
-## Copilot Auto-Review Workflow
-
-If the repo has GitHub Copilot configured to review PRs automatically:
-
-### Setup
-
-Enable Copilot reviews via repo Settings → Rules → Rulesets, or manually
-trigger via PR page → Reviewers → gear icon → select "copilot-pull-request-reviewer".
-
-### Triage Process
-
-**While CI runs**, check for Copilot comments (typically posts within a minute).
-
-Categorize each comment:
-- **Fix**: Real bugs, logic errors, missing edge cases in new code
-- **Dismiss**: Stylistic preferences, over-engineering, suggestions for code
-  not changed in the PR
-- **Already fixed**: Issues addressed by other commits
-
-**Common dismissals:**
-- Unnecessary `useMemo`/`useCallback` wrapping (unless measured perf issue)
-- Dependency array pedantry for stable React setState
-- Suggestions to add complexity for hypothetical future cases
-- Over-abstraction for patterns that appear < 3 times
-
-### Resolution
-
-1. **Push fixes before resolving** — if auto-merge is enabled, resolving threads
-   can trigger merge before your fix commit lands. Always: fix → push → verify → resolve.
-2. **Wait for re-review after pushing fixes** — Copilot reviews each commit separately.
-   After pushing a fix commit, wait for Copilot to review that commit before merging.
-   Use the "Checking if Copilot Review is Complete" commands below to verify.
-3. **Never batch-resolve** without reading each comment — Copilot occasionally
-   finds real bugs
-4. **Present dismissals** to user for approval before posting replies — even when
-   dismissal seems obvious based on existing patterns
-5. **Confirm merge readiness** — after resolving all threads, verify review is
-   complete for latest commits before merging. Dismissal approval ≠ merge approval.
-6. Use the PR Review Workflow above for replying and resolving threads
-
-### Checking if Copilot Review is Complete
-
-Copilot reviews can take 30-60 seconds. To check if the latest commit has been reviewed:
-
-```bash
-# Get the latest commit SHA on the PR branch
-LATEST_COMMIT=$(gh pr view <PR_NUMBER> --json headRefOid -q .headRefOid)
-
-# Get the commit SHA of Copilot's most recent review
-REVIEWED_COMMIT=$(gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews \
-  --jq '[.[] | select(.user.login | contains("copilot"))] | last | .commit_id')
-
-# Compare them
-if [ "$LATEST_COMMIT" = "$REVIEWED_COMMIT" ]; then
-  echo "Review complete"
-else
-  echo "Review pending or not triggered"
-fi
-```
-
-Or in a single line to check:
-```bash
-gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews --jq 'map(select(.user.login | contains("copilot"))) | last | .commit_id'
-```
-
-Compare this to the current HEAD. If they match, the review is complete.
-
-### If Copilot Doesn't Review
-
-Sometimes skips commits (small changes, rapid pushes). Manually trigger via
-GitHub UI: PR page → Reviewers (right sidebar) → gear icon → select
-"copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
-
-**Don't confuse "pending" with "skipped."** Copilot reviews can take 30-60
-seconds (sometimes longer). If you check immediately after PR creation and get
-no reviews, wait and recheck before concluding it skipped. Only manually
-trigger after at least 2 minutes with no review.
 
 ## Questions to Ask Pattern
 
@@ -546,107 +295,8 @@ Renders as 1, 2, 3. This only works for list items, not headings.
 
 ## Shell & Path Handling
 
-### Cross-Platform Paths
+Use Unix-style paths on Windows (`/c/path` not `C:\path`). Escape `$` and
+backticks in shell strings. Use `<<'EOF'` (quoted) heredocs for complex content.
 
-When working on Windows with bash-like shells (Git Bash, WSL, MSYS2):
-
-- Use Unix-style paths: `/c/Users/name` not `C:\Users\name`
-- Forward slashes work universally: `cd /c/Dev/project`
-- Avoid Windows path literals in shell commands
-
-### Escaping Pitfalls
-
-**Backticks:** Interpreted as command substitution
-```bash
-# Bad - backticks execute as command
-gh api ... -f body="Fix the `error` handling"
-
-# Good - use single quotes or escape
-gh api ... -f body='Fix the error handling'
-```
-
-**Dollar signs:** Variable expansion
-```bash
-# Bad - $variable expands (usually to empty)
-echo "Cost is $50"
-
-# Good - escape or single-quote
-echo "Cost is \$50"
-echo 'Cost is $50'
-```
-
-**Quotes in JSON:** Double-escape or use heredocs
-```bash
-# Heredoc for complex content
-git commit -m "$(cat <<'EOF'
-Message with "quotes" and $pecial chars
-EOF
-)"
-```
-
-**Newlines:** Don't use literal newlines to chain commands
-```bash
-# Bad - newline breaks command
-cd /path
-npm install
-
-# Good - && chains or separate calls
-cd /path && npm install
-```
-
-### Common Fixes
-
-| Issue | Solution |
-|-------|----------|
-| Path not found (Windows) | Use `/c/path` not `c:\path` |
-| Command not found | Check PATH, use full path |
-| Unexpected token | Escape special chars (`$`, `` ` ``, `"`) |
-| Heredoc issues | Use `<<'EOF'` (quoted) to prevent expansion |
-| Unexpected EOF with quoted paths | Trailing `\` before `"` escapes the quote; use PowerShell or forward slashes |
-
-**Trailing backslash issue:** Windows paths ending in `\` cause "unexpected EOF" errors:
-```bash
-# Bad - \' escapes the closing quote
-ls "C:\path\to\dir\"
-
-# Good - use PowerShell for Windows paths
-powershell -Command "Get-ChildItem 'C:\path\to\dir'"
-
-# Good - or use forward slashes
-ls "C:/path/to/dir/"
-```
-
-### PowerShell from Bash
-
-When calling PowerShell from bash-like shells, variable syntax gets mangled:
-
-```bash
-# Bad - $_ becomes 'extglob' or similar garbage
-powershell -Command "Get-ChildItem | Where-Object { $_.Name -like '*foo*' }"
-
-# Good - avoid inline PowerShell filtering, use simpler commands
-powershell -Command "Get-ChildItem -Filter '*foo*'"
-
-# Good - or pipe through bash tools
-powershell -Command "Get-ChildItem" | grep foo
-```
-
-The `$_` variable (and other `$` variables) in PowerShell commands passed through bash
-get interpreted by bash first, causing errors like `extglob.Name: command not found`.
-
-**Workarounds:**
-- Use PowerShell's parameter-based filtering (`-Filter`, `-Include`) instead of `Where-Object`
-- Use simpler PowerShell commands and filter with bash tools (`grep`, `awk`)
-- For complex PowerShell logic, write a `.ps1` script file and invoke it
-
-### Cross-Platform Tool Availability
-
-Some Unix tools aren't available by default on Windows:
-
-| Tool | Status | Alternative |
-|------|--------|-------------|
-| `jq` | Not on Windows Git Bash | Use `--jq` flag with `gh` CLI, or PowerShell's `ConvertFrom-Json` |
-| `sed` | Limited in Git Bash | Use dedicated Edit tool or PowerShell |
-| `awk` | Limited in Git Bash | Use dedicated tools or scripting |
-
-Prefer tool-native filtering (e.g., `gh api --jq '.field'`) over piping to `jq`.
+For cross-platform details, escaping pitfalls, PowerShell interop, and tool
+availability, see [shell-reference.md](shell-reference.md).

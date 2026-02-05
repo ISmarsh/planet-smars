@@ -115,7 +115,7 @@ gh pr checks --watch
 
 ### Check Review Comments
 
-After checks complete, check for unresolved review threads using the GraphQL workflow in AGENTS.md ("PR Review Workflow" section).
+After checks complete, check for unresolved review threads using the GraphQL workflow in [pr-workflow.md](../../ai-context/pr-workflow.md).
 
 For quick overview of comments:
 
@@ -134,3 +134,12 @@ Report final status to user including:
 - PR URL (always include this — make it easy for the user to click through)
 - Check results (pass/fail)
 - Unresolved review threads (if any)
+
+### Lessons Check
+
+After the PR is complete, ask the user:
+
+> "Any lessons worth capturing? Run `/review-lessons` to audit for promotable
+> insights."
+
+This is a quick prompt, not a blocker — skip if the user wants to move on.

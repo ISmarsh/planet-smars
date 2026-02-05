@@ -1,0 +1,171 @@
+---
+name: review-lessons
+description: Audit accumulated lessons in memory and project files. Identify insights worth promoting to shared templates.
+user-invocable: true
+allowed-tools:
+  - Read
+  - Grep
+  - Glob
+  - Task
+argument-hint: "[focus-area]"
+---
+
+# Review Lessons
+
+Audit knowledge scattered across memory files, project instructions, and recent
+work. Identify lessons worth promoting to shared templates — and lessons in
+templates that are outdated or redundant.
+
+## Arguments
+
+`$ARGUMENTS` can be:
+- Empty: Incremental audit (changes since last run)
+- A focus area: Narrow the audit (e.g., "shell", "git", "data", "hooks")
+- `full`: Force a complete audit regardless of last run date
+
+## Run Tracking
+
+Check for a last-run marker in the workspace memory directory:
+
+```
+~/.claude/projects/*/memory/.review-lessons-last-run
+```
+
+The file contains a single ISO date string (e.g., `2026-02-05`).
+
+- If the marker exists, focus on files modified since that date. Use file
+  modification times and `git log --since` in template repos to identify
+  what changed.
+- If the marker doesn't exist (first run) or `$ARGUMENTS` is `full`, do a
+  complete audit.
+- After completing the report, write the current date to the marker file.
+
+## Discovery
+
+Start by finding what exists. Don't hardcode paths — discover them.
+
+### Memory files (accumulated lessons)
+
+```
+~/.claude/projects/*/memory/MEMORY.md
+~/.claude/projects/*/memory/*.md
+~/.claude/CLAUDE.md
+```
+
+### Shared templates (promoted guidance)
+
+Look for the shared template directory. It's typically referenced via `@import`
+in `~/.claude/CLAUDE.md` or in a workspace `CLAUDE.md`. Follow the import chain
+to find the template root, then read:
+- `AGENTS.md` — cross-tool guidance
+- `CLAUDE.md` — Claude Code-specific guidance
+- Any companion files (see Companion File Pattern below)
+
+### Project instructions
+
+```
+<workspace>/CLAUDE.md
+<workspace>/*/CLAUDE.md
+<workspace>/*/.claude/CLAUDE.md
+```
+
+## Audit Process
+
+### Read all sources
+
+Read the discovered files. For each, note:
+- What lessons/rules it contains
+- Where each lesson likely originated (project-specific experience vs general wisdom)
+- How specific vs universal each item is
+
+### Categorize findings
+
+Sort every notable item into one of these buckets:
+
+| Bucket | Criteria | Action |
+|--------|----------|--------|
+| **Promote** | Applies to 2+ projects; about process/workflow/tooling, not project data | Draft addition to shared template |
+| **Already covered** | Lesson exists in both memory and templates | Note the duplication — consider removing from memory |
+| **Outdated** | No longer accurate or relevant | Flag for removal from wherever it lives |
+| **Project-specific** | Only relevant to one project | Keep in project memory/instructions, don't promote |
+| **Trim from template** | In shared template but too detailed or niche | Move to companion file or remove |
+
+### Check template health
+
+For each shared template file, assess:
+- **Line count** — AGENTS.md should target ≤150 lines of core rules
+- **Signal-to-noise** — is every instruction earning its token cost?
+- **Companion candidates** — detailed reference material (code snippets,
+  command examples, troubleshooting) that could move to companion files
+  without losing the core rule
+
+## Output
+
+Present findings as a structured report with these sections:
+
+### Lessons to Promote
+
+For each item:
+- **Lesson**: One-line summary
+- **Source**: Where it was found (file + context)
+- **Target**: Which shared template file and section
+- **Draft**: The actual text to add (ready to paste)
+
+### Template Health
+
+- Current line counts vs targets
+- Items that should move to companion files
+- Outdated items to remove
+
+### Duplication & Cleanup
+
+- Items duplicated between memory and templates
+- Memory items that can be removed (already promoted or outdated)
+
+### Deferred
+
+- Project-specific items staying where they are (brief list, no action needed)
+
+---
+
+## Companion File Pattern
+
+When promoting content, follow this structure for shared template directories:
+
+```
+templates/ai-context/
+├── AGENTS.md              # Core rules — universal, ≤150 lines
+├── CLAUDE.md              # Claude Code-specific config and conventions
+├── <topic>.md             # Companion: detailed reference for a topic
+└── ...
+```
+
+### What goes in core AGENTS.md
+
+- High-level principles and rules (the "what")
+- Brief rationale when non-obvious (the "why")
+- One-line pattern summaries with a pointer to the companion file
+- Example: "Use merge commits for PRs. See [pr-workflow.md](pr-workflow.md)
+  for the full review and triage process."
+
+### What goes in companion files
+
+- Step-by-step procedures and commands (the "how")
+- Code snippets, GraphQL queries, shell examples
+- Troubleshooting and edge cases
+- Detailed checklists
+
+### Naming companions
+
+- Use kebab-case: `pr-workflow.md`, `shell-reference.md`, `data-practices.md`
+- Name by topic, not by when it was created
+- One file per concern — don't create a file for a single tip
+
+### Cross-tool compatibility
+
+- AGENTS.md uses standard markdown — no tool-specific syntax
+- Claude Code follows `@import` references; other tools discover files via
+  directory walks
+- Keep companion files self-contained (readable without AGENTS.md context)
+- Don't use `@import` in AGENTS.md itself — it inflates token cost on every
+  request. Let Claude read companions on demand.
