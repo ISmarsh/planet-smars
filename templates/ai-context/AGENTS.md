@@ -23,6 +23,9 @@ This ensures consistent tooling across all projects from day one.
 - Atomic commits: one logical change per commit
 - Message format: imperative mood, explain *why* not just *what*
 - Include co-author attribution for AI-assisted commits
+- **Never amend after push** — amending before the first push is fine, but
+  once a commit is pushed, make a new commit for fixes. Amending a pushed
+  commit requires force-push, which rewrites shared history.
 
 ### Branches
 
