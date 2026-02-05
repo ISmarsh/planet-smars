@@ -107,6 +107,15 @@ chmod +x ~/.claude/hooks/*.sh
 Then add hook registrations to `~/.claude/settings.json` — see
 [hooks/README.md](hooks/README.md) for the full settings block.
 
+**Windows users:** Add `CLAUDE_CODE_SHELL` to settings.json so hooks run in bash:
+```json
+{
+  "env": {
+    "CLAUDE_CODE_SHELL": "C:\\Program Files\\Git\\bin\\bash.exe"
+  }
+}
+```
+
 **Customize:**
 - `guardrail.sh` — set `PROJECT_ROOT` to your workspace directory
 - `setup-path.sh` — add paths to tools on your machine
