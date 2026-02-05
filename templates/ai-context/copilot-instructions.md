@@ -1,7 +1,6 @@
 # Copilot Code Review Instructions
 
-Universal guidance for automated code reviews. Prioritize real bugs and security
-over style preferences.
+Universal guidance for automated code reviews. Prioritize real bugs and security over style preferences.
 
 ## Do Flag
 

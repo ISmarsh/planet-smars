@@ -6,14 +6,24 @@ Cross-tool AI assistant context following the [AGENTS.md convention](https://git
 
 | File | Purpose | Tool Support |
 |------|---------|--------------|
-| `AGENTS.md` | Universal development guidance | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
+| `AGENTS.md` | Core development rules (~150 lines) | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
 | `CLAUDE.md` | Claude Code-specific config (imports AGENTS.md) | Claude Code |
 | `copilot-instructions.md` | Code review priorities | GitHub Copilot |
+| `pr-workflow.md` | PR review commands, Copilot triage, wrap-up checks | Companion (read on demand) |
+| `shell-reference.md` | Cross-platform paths, escaping, PowerShell | Companion (read on demand) |
+| `data-practices.md` | Batch operations, auditing, external data | Companion (read on demand) |
+| `testing.md` | Testing code examples | Companion (read on demand) |
+| `checklists.md` | Security and accessibility checklists | Companion (read on demand) |
 
 ## Architecture
 
 ```
-AGENTS.md          ← Cross-tool compatible (60,000+ repos use this convention)
+AGENTS.md          ← Core rules, loaded on every request (~150 lines)
+├── pr-workflow.md ← Companion: read on demand by agents
+├── shell-reference.md
+├── data-practices.md
+├── testing.md
+├── checklists.md
     ↑
 CLAUDE.md          ← Imports AGENTS.md via @AGENTS.md, adds Claude-specific notes
 ```
@@ -21,7 +31,8 @@ CLAUDE.md          ← Imports AGENTS.md via @AGENTS.md, adds Claude-specific no
 This approach gives you:
 - **Broad compatibility** — AGENTS.md works with most AI coding tools
 - **Claude-specific features** — CLAUDE.md adds co-author attribution, import syntax notes, etc.
-- **Single source of truth** — Core guidance lives in AGENTS.md
+- **Single source of truth** — Core rules in AGENTS.md, detailed reference in companions
+- **Token efficiency** — Companion files load only when relevant, not every request
 
 ## Usage
 
@@ -50,9 +61,7 @@ In your project's CLAUDE.md, use the `@import` syntax:
 [Your project-specific context here]
 ```
 
-**Important:** The `@path/to/file` syntax is how Claude Code imports content.
-Regular markdown links (`[text](url)`) are just text — they won't be followed.
-The blockquote link is for human readers.
+**Important:** The `@path/to/file` syntax is how Claude Code imports content. Regular markdown links (`[text](url)`) are just text — they won't be followed. The blockquote link is for human readers.
 
 #### Auto-init Submodules
 
@@ -72,15 +81,22 @@ Copy files to your project root and customize as needed.
 
 ## What's Included
 
-### AGENTS.md (Cross-Tool)
+### AGENTS.md (Cross-Tool) — Core Rules
 
 - **Git Practices** — Commit format, branching, merge commits over squash
-- **PR Review Workflow** — GitHub CLI commands, thread resolution, `gh pr checks --watch`
-- **Testing** — Philosophy, patterns for hooks/components/utilities
-- **Code Principles** — Minimal changes, no over-engineering, security checklist
-- **Accessibility** — a11y audit checklist, semantic HTML reminders
-- **Workflow Discipline** — Scope creep checkpoints, pre-commit verification
-- **Shell & Path Handling** — Cross-platform compatibility, escaping
+- **PR Review Workflow** — Typical workflow + pointer to `pr-workflow.md`
+- **Testing** — Philosophy, when/what to test + pointer to `testing.md`
+- **Code Principles** — Minimal changes, no over-engineering + pointer to `checklists.md`
+- **Workflow Discipline** — Scope creep, pre-commit, data workflows + pointer to `data-practices.md`
+- **Shell & Path Handling** — Key rules + pointer to `shell-reference.md`
+
+### Companion Files (Read on Demand)
+
+- **`pr-workflow.md`** — GraphQL queries, thread resolution, Copilot triage/verification, wrap-up checks
+- **`shell-reference.md`** — Escaping pitfalls, PowerShell interop, tool availability
+- **`data-practices.md`** — Disposable scripts, verify-iterate, auditing, external sourcing
+- **`testing.md`** — Code examples for hooks, components, utilities
+- **`checklists.md`** — Security and WCAG 2.1 AA accessibility checklists
 
 ### CLAUDE.md (Claude-Specific)
 
@@ -96,5 +112,4 @@ Copy files to your project root and customize as needed.
 
 ## Related Templates
 
-- **[hooks/](../hooks/)** — Claude Code hooks that enforce AGENTS.md conventions
-  (guardrails, reminders, notifications). See [hooks/README.md](../hooks/README.md).
+- **[hooks/](../hooks/)** — Claude Code hooks that enforce AGENTS.md conventions (guardrails, reminders, notifications). See [hooks/README.md](../hooks/README.md).

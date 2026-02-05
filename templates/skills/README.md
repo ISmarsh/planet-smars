@@ -7,6 +7,7 @@ Claude Code skills (custom slash commands) for common workflows.
 | Skill | Description | Trigger |
 |-------|-------------|---------|
 | `pr-flow/` | Create PR with full workflow (branch, commit, push, PR, checks, reviews) | `/pr-flow` |
+| `review-lessons/` | Audit memory and project files for insights to promote to shared templates | `/review-lessons` |
 
 ## Installation
 
