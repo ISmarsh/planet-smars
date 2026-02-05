@@ -31,6 +31,8 @@ Hooks live in `~/.claude/hooks/` (user-global) and are registered in `~/.claude/
 
 **Architecture:** Allows in settings are coarse (command prefix like `Bash(git push:*)`), hooks are precise (regex on full command). This lets you keep convenient auto-approvals while blocking specific dangerous patterns.
 
+**Maintenance:** Periodically audit `~/.claude/settings.json` for accumulated one-off allows — they persist across sessions and can silently bypass guardrail hooks.
+
 **Windows shell behavior:** `CLAUDE_CODE_SHELL` controls which shell the **Bash tool** uses — it does NOT affect standalone hook execution. Lifecycle hooks (PreCompact, Notification, SessionStart) resolve `bash` via the system PATH.
 
 **Setup:** Ensure Git Bash's `bin` directory is on the Windows user PATH so that `bash` is globally available. Then use bare `.sh` paths in hook commands — no shell wrapper needed:
