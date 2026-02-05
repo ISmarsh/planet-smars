@@ -135,3 +135,52 @@ GitHub UI: PR page > Reviewers (right sidebar) > gear icon > select
 seconds (sometimes longer). If you check immediately after PR creation and get
 no reviews, wait and recheck before concluding it skipped. Only manually
 trigger after at least 2 minutes with no review.
+
+## Branch Protection
+
+GitHub has two protection systems:
+- **Rulesets** (newer): `gh api repos/OWNER/REPO/rulesets`
+- **Branch protection rules** (older): `gh api repos/OWNER/REPO/branches/main/protection`
+
+Prefer rulesets for new repos.
+
+## PR Wrap-up Manual Checks
+
+Before merging, run these manual checks alongside automated CI:
+
+### Code duplication
+
+- Scan for duplicated logic across files
+- Extract when a pattern appears **3+ times** AND reduces actual code
+- Don't over-abstract for 2 instances
+- Good: consolidating duplicate message strings
+- Bad: a helper that just wraps a standard library call with no reduction
+
+### Obsolete code
+
+- Look for unused imports
+- Dead functions or unreachable code
+- Stale comments referencing removed features
+- Old commented-out code blocks
+
+### Documentation review
+
+- Verify README matches current implementation
+- Check that code examples still work
+- Update architecture docs if structure changed
+- Confirm file listings are accurate
+
+### Attribution & licensing
+
+- Update Credits page when adding external data sources (APIs, datasets)
+- Review and follow API/data terms of service (rate limits, attribution, usage restrictions)
+- Include required logos/text for APIs that mandate them (e.g., TMDB)
+- Note fan-curated vs official content to avoid implying endorsement
+- Verify license compatibility before adding dependencies or data sources
+
+### Review comment triage (if using automated reviewers)
+
+- Categorize comments: fix, dismiss, or already-addressed
+- Reply to each comment explaining the action taken
+- Resolve threads after addressing
+- Present dismissals for approval before resolving

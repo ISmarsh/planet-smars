@@ -47,12 +47,6 @@ This ensures consistent tooling across all projects from day one.
 - Never force-push to shared branches
 - **Enable branch protection** requiring PRs for main (prevents accidental direct pushes)
 
-**Note:** GitHub has two protection systems:
-- **Rulesets** (newer): `gh api repos/OWNER/REPO/rulesets`
-- **Branch protection rules** (older): `gh api repos/OWNER/REPO/branches/main/protection`
-
-Prefer rulesets for new repos.
-
 ### Merging PRs
 
 - **Always use merge commits** (`gh pr merge --merge`), not squash or rebase
@@ -62,8 +56,8 @@ Prefer rulesets for new repos.
 ## PR Review Workflow
 
 Use `gh pr checks --watch` for CI status. For detailed commands (GraphQL
-queries, thread resolution, Copilot triage and review verification), see
-[pr-workflow.md](pr-workflow.md).
+queries, thread resolution, Copilot triage, review verification, and wrap-up
+checks), see [pr-workflow.md](pr-workflow.md).
 
 ### Typical review workflow
 
@@ -113,76 +107,45 @@ For code examples (hooks, components, utilities), see
 
 ### Do Not
 
-- Add features beyond what was requested
-- Refactor surrounding code while fixing a bug
-- Add abstractions for patterns that appear fewer than 3 times
+- Expand scope — extra features, tangential refactors, speculative abstractions
 - Add error handling for scenarios that can't happen
-- Create helpers or utilities for one-time operations
-- Add comments explaining obvious code
-- Add type annotations to code you didn't change
+- Add comments, type annotations, or dependencies without justification
 - Optimize prematurely without measurements
-- Add dependencies without justification
 - Sacrifice clarity for brevity
-- Add backwards-compatibility shims — just change the code
-- Leave `// removed` comments or rename unused variables to `_var`
+- Add backwards-compatibility shims, `// removed` comments, or `_var` renames
 
-### Security Checklist
+### Quality Checklists
 
-Before completing any change, verify:
-- [ ] No user input rendered as raw HTML (XSS)
-- [ ] No string concatenation in SQL/commands (injection)
-- [ ] No secrets in code or logs
-- [ ] No overly permissive CORS or auth
-- [ ] Dependencies are from trusted sources
-
-### Accessibility Checklist
-
-Target **WCAG 2.1 AA** compliance:
-
-- [ ] Images have alt text (or `alt=""` for decorative)
-- [ ] Form inputs have associated labels
-- [ ] Interactive elements are keyboard accessible
-- [ ] Focus indicators are visible
-- [ ] Color is not the only means of conveying information
-- [ ] Text has sufficient contrast (4.5:1 for normal, 3:1 for large)
-- [ ] Page has proper heading hierarchy (h1 → h2 → h3)
-- [ ] ARIA attributes used correctly (prefer semantic HTML first)
-
-**Automated testing:** Use Playwright + axe-core for CI audits.
+Before completing any change, verify security and accessibility. See
+[checklists.md](checklists.md) for the full security and WCAG 2.1 AA
+accessibility checklists. Use Playwright + axe-core for automated a11y audits.
 
 ## Workflow Discipline
 
 ### Batch context updates
 
-When noticing something that should be added to context files during feature work,
-collect it in a todo list instead of editing immediately. At PR wrap-up (or in
-a separate docs PR), batch all context updates into a single commit. This
-prevents documentation churn scattered across feature PRs.
+Collect context file updates in a todo list during feature work. Batch into a
+single commit at PR wrap-up — prevents documentation churn in feature PRs.
 
 ### Scope creep checkpoints
 
-When unrelated work emerges mid-feature, ask: "This is unrelated to [current
-branch purpose]. Defer to a separate PR?" Options:
-- **Defer** — add to a todo/issue for later
-- **Quick-branch** — stash, fix on a new branch, return
-- **Expand scope** — conscious decision, not drift
+When unrelated work emerges mid-feature, ask: "Defer to a separate PR?"
+Options: defer (todo/issue), quick-branch (stash, fix, return), or consciously
+expand scope.
 
 ### Context-conscious delegation
 
 Prefer subagents for heavy exploration (multi-file searches, broad codebase
-scans, web research) to keep the main conversation context lean. Large tool
-outputs in the main context accelerate compaction, which can degrade session
-quality. Subagents isolate that bulk and return only the summary.
+scans, web research) to keep the main context lean. Subagents isolate bulk
+results and return only summaries.
 
 ### Pre-commit verification
 
-Before suggesting a commit for a feature, run the build to catch TypeScript/build
-errors. Tests typically run in CI on every push, so don't run them locally unless
-debugging a specific failure.
+Run the build before committing to catch TypeScript/build errors. Tests run in
+CI, so don't run locally unless debugging a specific failure.
 
-For non-code projects (markdown, data files, docs-only repos), there's no
-automated lint or build. Run a manual content review instead — this becomes
-the primary quality gate:
+For non-code projects (markdown, data files, docs-only repos), run a manual
+content review instead:
 
 - **Duplicates across sections** — same item in two tables/categories
 - **Items in wrong categories** — miscategorized by type or scope
@@ -192,60 +155,20 @@ the primary quality gate:
 ### Running dev servers
 
 Don't spawn dev servers as background processes — they survive editor restarts
-and cause port conflicts. Use VSCode tasks (`.vscode/tasks.json`) instead;
-VSCode terminates them when the editor closes.
+and cause port conflicts. Use VSCode tasks (`.vscode/tasks.json`) instead.
 
 ### Data workflows
 
 For batch operations, use disposable scripts (scratchpad, not committed).
-Prefer APIs over scraping. Validate after every change (verify-iterate cycle).
-Tier large research tasks by priority.
-
-See [data-practices.md](data-practices.md) for detailed patterns: disposable
-scripts, verify-iterate cycles, data integrity auditing, external data
-sourcing, and tiered research.
+Prefer APIs over scraping. See [data-practices.md](data-practices.md) for
+detailed patterns.
 
 ## PR Wrap-up Checklist
 
-Before merging a pull request, consider these checks:
-
-### Automated Checks
-- Build, lint, and tests (typically handled by CI)
-- Security scanning and accessibility audits (if configured)
-
-### Manual Checks
-
-**1. Code duplication check**
-- Scan for duplicated logic across files
-- Extract when a pattern appears **3+ times** AND reduces actual code
-- Don't over-abstract for 2 instances
-- Good: consolidating duplicate message strings
-- Bad: a helper that just wraps a standard library call with no reduction
-
-**2. Obsolete code check**
-- Look for unused imports
-- Dead functions or unreachable code
-- Stale comments referencing removed features
-- Old commented-out code blocks
-
-**3. Documentation review**
-- Verify README matches current implementation
-- Check that code examples still work
-- Update architecture docs if structure changed
-- Confirm file listings are accurate
-
-**4. Attribution & licensing**
-- Update Credits page when adding external data sources (APIs, datasets)
-- Review and follow API/data terms of service (rate limits, attribution, usage restrictions)
-- Include required logos/text for APIs that mandate them (e.g., TMDB)
-- Note fan-curated vs official content to avoid implying endorsement
-- Verify license compatibility before adding dependencies or data sources
-
-**5. Review comment triage** (if using automated reviewers)
-- Categorize comments: fix, dismiss, or already-addressed
-- Reply to each comment explaining the action taken
-- Resolve threads after addressing
-- Present dismissals for approval before resolving
+Before merging, verify CI passes (build, lint, tests) and run manual quality
+checks: code duplication, obsolete code, documentation accuracy, attribution,
+and review comment triage. See [pr-workflow.md](pr-workflow.md) for the full
+checklist.
 
 ## Questions to Ask Pattern
 
@@ -271,27 +194,6 @@ the [CARE framework](https://www.nngroup.com/articles/careful-prompts/):
 | **E**xamples | "Can you show an example of what you want? (or what you don't want)" |
 
 If a request is vague, ask for the missing CARE components rather than guessing.
-
-## Markdown Conventions
-
-### Sequential Steps
-
-For sequential workflows, avoid numbered headings (`### 1. Step One`). Instead:
-- Use descriptive headings without numbers (`### Check Current State`)
-- Add "Follow these steps in order:" at the top if sequence matters
-- Let the document order convey the sequence
-
-This avoids renumbering when steps are added/removed/reordered.
-
-### Auto-Numbered Lists
-
-Markdown auto-numbers list items when you use `1.` repeatedly:
-```markdown
-1. First item
-1. Second item
-1. Third item
-```
-Renders as 1, 2, 3. This only works for list items, not headings.
 
 ## Shell & Path Handling
 

@@ -6,22 +6,24 @@ Cross-tool AI assistant context following the [AGENTS.md convention](https://git
 
 | File | Purpose | Tool Support |
 |------|---------|--------------|
-| `AGENTS.md` | Core development rules (~300 lines) | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
+| `AGENTS.md` | Core development rules (~185 lines) | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
 | `CLAUDE.md` | Claude Code-specific config (imports AGENTS.md) | Claude Code |
 | `copilot-instructions.md` | Code review priorities | GitHub Copilot |
-| `pr-workflow.md` | PR review commands, Copilot triage | Companion (read on demand) |
+| `pr-workflow.md` | PR review commands, Copilot triage, wrap-up checks | Companion (read on demand) |
 | `shell-reference.md` | Cross-platform paths, escaping, PowerShell | Companion (read on demand) |
 | `data-practices.md` | Batch operations, auditing, external data | Companion (read on demand) |
 | `testing.md` | Testing code examples | Companion (read on demand) |
+| `checklists.md` | Security and accessibility checklists | Companion (read on demand) |
 
 ## Architecture
 
 ```
-AGENTS.md          ← Core rules, loaded on every request (~300 lines)
+AGENTS.md          ← Core rules, loaded on every request (~185 lines)
 ├── pr-workflow.md ← Companion: read on demand by agents
 ├── shell-reference.md
 ├── data-practices.md
 ├── testing.md
+├── checklists.md
     ↑
 CLAUDE.md          ← Imports AGENTS.md via @AGENTS.md, adds Claude-specific notes
 ```
@@ -86,17 +88,17 @@ Copy files to your project root and customize as needed.
 - **Git Practices** — Commit format, branching, merge commits over squash
 - **PR Review Workflow** — Typical workflow + pointer to `pr-workflow.md`
 - **Testing** — Philosophy, when/what to test + pointer to `testing.md`
-- **Code Principles** — Minimal changes, no over-engineering, security checklist
-- **Accessibility** — a11y audit checklist, semantic HTML reminders
+- **Code Principles** — Minimal changes, no over-engineering + pointer to `checklists.md`
 - **Workflow Discipline** — Scope creep, pre-commit, data workflows + pointer to `data-practices.md`
 - **Shell & Path Handling** — Key rules + pointer to `shell-reference.md`
 
 ### Companion Files (Read on Demand)
 
-- **`pr-workflow.md`** — GraphQL queries, thread resolution, Copilot triage/verification
+- **`pr-workflow.md`** — GraphQL queries, thread resolution, Copilot triage/verification, wrap-up checks
 - **`shell-reference.md`** — Escaping pitfalls, PowerShell interop, tool availability
 - **`data-practices.md`** — Disposable scripts, verify-iterate, auditing, external sourcing
 - **`testing.md`** — Code examples for hooks, components, utilities
+- **`checklists.md`** — Security and WCAG 2.1 AA accessibility checklists
 
 ### CLAUDE.md (Claude-Specific)
 
