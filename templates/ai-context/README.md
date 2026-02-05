@@ -6,7 +6,7 @@ Cross-tool AI assistant context following the [AGENTS.md convention](https://git
 
 | File | Purpose | Tool Support |
 |------|---------|--------------|
-| `AGENTS.md` | Core development rules (~185 lines) | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
+| `AGENTS.md` | Core development rules (~170 lines) | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
 | `CLAUDE.md` | Claude Code-specific config (imports AGENTS.md) | Claude Code |
 | `copilot-instructions.md` | Code review priorities | GitHub Copilot |
 | `pr-workflow.md` | PR review commands, Copilot triage, wrap-up checks | Companion (read on demand) |
@@ -18,7 +18,7 @@ Cross-tool AI assistant context following the [AGENTS.md convention](https://git
 ## Architecture
 
 ```
-AGENTS.md          ← Core rules, loaded on every request (~185 lines)
+AGENTS.md          ← Core rules, loaded on every request (~170 lines)
 ├── pr-workflow.md ← Companion: read on demand by agents
 ├── shell-reference.md
 ├── data-practices.md

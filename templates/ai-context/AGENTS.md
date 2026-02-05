@@ -1,8 +1,5 @@
 # AI Coding Agent Guidance
 
-Universal guidance for AI-assisted development. This file follows the
-[AGENTS.md](https://agents.md) convention for cross-tool compatibility.
-
 ## Communication Style
 
 - Be direct and technical
@@ -22,8 +19,6 @@ When initializing a new project with planet-smars as a submodule, follow the
 4. **Copilot auto-review** (optional)
 5. **Accessibility audit** (optional)
 
-This ensures consistent tooling across all projects from day one.
-
 ## Git Practices
 
 ### Commits
@@ -31,9 +26,7 @@ This ensures consistent tooling across all projects from day one.
 - Atomic commits: one logical change per commit
 - Message format: imperative mood, explain *why* not just *what*
 - Include co-author attribution for AI-assisted commits
-- **Never amend after push** — amending before the first push is fine, but
-  once a commit is pushed, make a new commit for fixes. Amending a pushed
-  commit requires force-push, which rewrites shared history.
+- **Never amend after push** — make a new commit instead (amending requires force-push)
 
 ### Branches
 
@@ -50,16 +43,12 @@ This ensures consistent tooling across all projects from day one.
 ### Merging PRs
 
 - **Always use merge commits** (`gh pr merge --merge`), not squash or rebase
-- Preserves individual commit history in main branch
-- Never use `--squash` or `--rebase` unless explicitly requested
+  unless explicitly requested
 
 ## PR Review Workflow
 
-Use `gh pr checks --watch` for CI status. For detailed commands (GraphQL
-queries, thread resolution, Copilot triage, review verification, and wrap-up
-checks), see [pr-workflow.md](pr-workflow.md).
-
-### Typical review workflow
+Use `gh pr checks --watch` for CI status. See
+[pr-workflow.md](pr-workflow.md) for detailed commands.
 
 1. Fetch unresolved threads (GraphQL)
 2. Triage: fix actionable items, note dismissals
@@ -72,9 +61,8 @@ checks), see [pr-workflow.md](pr-workflow.md).
 
 ### Philosophy
 
-- Write tests for behavior, not implementation details
+- Test behavior and public APIs, not implementation details or internal state
 - Prefer integration tests over unit tests when testing components
-- Test the public API, not internal state
 - Use descriptive test names that explain *what* and *why*
 
 ### When to Write Tests
@@ -91,7 +79,6 @@ For code examples (hooks, components, utilities), see
 
 - Third-party library internals
 - Styling or layout details (unless critical)
-- Implementation details that may change
 - Simple pass-through components with no logic
 
 ## Code Change Principles
@@ -122,22 +109,15 @@ accessibility checklists. Use Playwright + axe-core for automated a11y audits.
 
 ## Workflow Discipline
 
-### Batch context updates
+### Focus and scope
 
-Collect context file updates in a todo list during feature work. Batch into a
-single commit at PR wrap-up — prevents documentation churn in feature PRs.
-
-### Scope creep checkpoints
-
-When unrelated work emerges mid-feature, ask: "Defer to a separate PR?"
-Options: defer (todo/issue), quick-branch (stash, fix, return), or consciously
-expand scope.
+- Batch context file updates in a todo list; commit at PR wrap-up
+- When unrelated work emerges, ask: "Defer to a separate PR?" Options: defer,
+  quick-branch, or consciously expand scope
 
 ### Context-conscious delegation
 
-Prefer subagents for heavy exploration (multi-file searches, broad codebase
-scans, web research) to keep the main context lean. Subagents isolate bulk
-results and return only summaries.
+Prefer subagents for heavy exploration to keep the main context lean.
 
 ### Pre-commit verification
 
@@ -154,8 +134,8 @@ content review instead:
 
 ### Running dev servers
 
-Don't spawn dev servers as background processes — they survive editor restarts
-and cause port conflicts. Use VSCode tasks (`.vscode/tasks.json`) instead.
+Use VSCode tasks — background processes survive editor restarts and cause port
+conflicts.
 
 ### Data workflows
 
@@ -170,21 +150,11 @@ checks: code duplication, obsolete code, documentation accuracy, attribution,
 and review comment triage. See [pr-workflow.md](pr-workflow.md) for the full
 checklist.
 
-## Questions to Ask Pattern
+## Clarifying Requirements
 
-When users request features, clarify approach before implementing:
-
-- "Would you like me to explain the concept first, or dive straight into code?"
-- "Are there any constraints I should be aware of (performance, compatibility, etc.)?"
-- "Should this integrate with existing patterns, or establish a new approach?"
-- "Do you prefer a minimal implementation first, or a more complete solution?"
-
-Prefer asking questions over making assumptions. Better to clarify than redo work.
-
-### CARE Checklist
-
-Before starting complex tasks, check if the user provided enough information using
-the [CARE framework](https://www.nngroup.com/articles/careful-prompts/):
+Prefer asking questions over making assumptions. For complex or vague requests,
+check for missing [CARE](https://www.nngroup.com/articles/careful-prompts/)
+components:
 
 | Component | Question to Ask If Missing |
 |-----------|---------------------------|
@@ -192,8 +162,6 @@ the [CARE framework](https://www.nngroup.com/articles/careful-prompts/):
 | **A**sk | "What specific output do you need? (format, scope, deliverable)" |
 | **R**ules | "Any constraints? (style guide, dependencies, performance limits)" |
 | **E**xamples | "Can you show an example of what you want? (or what you don't want)" |
-
-If a request is vague, ask for the missing CARE components rather than guessing.
 
 ## Shell & Path Handling
 
