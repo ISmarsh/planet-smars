@@ -235,6 +235,13 @@ branch purpose]. Defer to a separate PR?" Options:
 - **Quick-branch** — stash, fix on a new branch, return
 - **Expand scope** — conscious decision, not drift
 
+### Context-conscious delegation
+
+Prefer subagents for heavy exploration (multi-file searches, broad codebase
+scans, web research) to keep the main conversation context lean. Large tool
+outputs in the main context accelerate compaction, which can degrade session
+quality. Subagents isolate that bulk and return only the summary.
+
 ### Pre-commit verification
 
 Before suggesting a commit for a feature, run the build to catch TypeScript/build
