@@ -10,6 +10,7 @@ Reusable project scaffolding and configuration templates.
 |----------|-------------|-------|
 | `a11y-audit/` | Playwright + axe-core accessibility audit | Copy to `scripts/` |
 | `ai-context/` | Cross-tool AI context (AGENTS.md + CLAUDE.md) | Submodule or copy |
+| `hooks/` | Claude Code hooks (guardrails, reminders, notifications) | Copy to `~/.claude/hooks/` |
 | `github-workflows/` | GitHub Actions for CI and deployment | Copy to `.github/workflows/` |
 | `react-vite/` | React + Vite + Tailwind + TypeScript starter | Copy and customize |
 | `skills/` | Claude Code skills (custom slash commands) | Copy to `~/.claude/skills/` |
@@ -49,6 +50,35 @@ cp templates/ai-context/AGENTS.md .
 cp templates/ai-context/CLAUDE.md .
 cp templates/ai-context/copilot-instructions.md .github/
 ```
+
+---
+
+## hooks
+
+Claude Code hooks that enforce AGENTS.md conventions automatically.
+
+### Contents
+
+| File | Event | Purpose |
+|------|-------|---------|
+| `guardrail.sh` | PreToolUse | Blocks force push, squash merge, secrets staging, destructive git/rm |
+| `copilot-reminder.sh` | PostToolUse | Reminds to check Copilot review after push |
+| `pre-compact.sh` | PreCompact | Captures git state before context compaction |
+| `context-reminder.sh` | SessionStart | Re-injects conventions after compaction |
+| `setup-path.sh` | SessionStart | Adds CLI tools to PATH |
+| `notify.sh` / `.ps1` | Notification | Desktop notifications (Windows/macOS/Linux) |
+
+### Usage
+
+```bash
+mkdir -p ~/.claude/hooks
+cp templates/hooks/*.sh ~/.claude/hooks/
+cp templates/hooks/*.ps1 ~/.claude/hooks/   # Windows only
+chmod +x ~/.claude/hooks/*.sh
+```
+
+Then register in `~/.claude/settings.json`. See `hooks/README.md` for the
+full settings block and customization options.
 
 ---
 

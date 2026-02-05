@@ -84,12 +84,17 @@ Copy files to your project root and customize as needed.
 
 ### CLAUDE.md (Claude-Specific)
 
-- **Communication Style** — Direct, technical, design decision explanations
 - **Co-Author Attribution** — Standard format for AI-assisted commits
-- **Tool Setup** — `CLAUDE_ENV_FILE` hook for GitHub CLI tokens
+- **Hooks** — Overview of guardrails, reminders, and session management hooks
+- **Tool Setup** — `CLAUDE_ENV_FILE` hook for GitHub CLI and other tools
 - **Import Syntax** — How `@path/to/file` works in Claude Code
 
 ### copilot-instructions.md
 
 - **What to Flag** — Bugs, security issues, accessibility problems
 - **What NOT to Flag** — Style preferences, over-engineering suggestions
+
+## Related Templates
+
+- **[hooks/](../hooks/)** — Claude Code hooks that enforce AGENTS.md conventions
+  (guardrails, reminders, notifications). See [hooks/README.md](../hooks/README.md).
