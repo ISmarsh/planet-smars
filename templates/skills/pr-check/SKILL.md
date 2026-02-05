@@ -139,7 +139,7 @@ After pushing, **wait for Copilot to re-review** the new commit before resolving
 Reply to each comment explaining the action taken:
 
 ```bash
-gh api repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies -f body="Reply text"
+gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/comments/COMMENT_ID/replies -f body="Reply text"
 ```
 
 Batch-resolve after all replies are posted:
