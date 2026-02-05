@@ -10,8 +10,7 @@
 
 ## New Project Setup
 
-When initializing a new project with planet-smars as a submodule, follow the
-[INIT.md checklist](../INIT.md) to configure:
+When initializing a new project with planet-smars as a submodule, follow the [INIT.md checklist](../INIT.md) to configure:
 
 1. **CI workflow** — lint, test, build on PRs
 2. **GitHub Pages deployment** (if applicable)
@@ -42,13 +41,11 @@ When initializing a new project with planet-smars as a submodule, follow the
 
 ### Merging PRs
 
-- **Always use merge commits** (`gh pr merge --merge`), not squash or rebase
-  unless explicitly requested
+- **Always use merge commits** (`gh pr merge --merge`), not squash or rebase unless explicitly requested
 
 ## PR Review Workflow
 
-Use `gh pr checks --watch` for CI status. See
-[pr-workflow.md](pr-workflow.md) for detailed commands.
+Use `gh pr checks --watch` for CI status. See [pr-workflow.md](pr-workflow.md) for detailed commands.
 
 1. Fetch unresolved threads (GraphQL)
 2. Triage: fix actionable items, note dismissals
@@ -72,8 +69,7 @@ Use `gh pr checks --watch` for CI status. See
 - Bug fixes: add a regression test before fixing
 - Refactors: ensure existing tests pass (add coverage if missing)
 
-For code examples (hooks, components, utilities), see
-[testing.md](testing.md).
+For code examples (hooks, components, utilities), see [testing.md](testing.md).
 
 ### What Not to Test
 
@@ -103,17 +99,14 @@ For code examples (hooks, components, utilities), see
 
 ### Quality Checklists
 
-Before completing any change, verify security and accessibility. See
-[checklists.md](checklists.md) for the full security and WCAG 2.1 AA
-accessibility checklists. Use Playwright + axe-core for automated a11y audits.
+Before completing any change, verify security and accessibility. See [checklists.md](checklists.md) for the full security and WCAG 2.1 AA accessibility checklists. Use Playwright + axe-core for automated a11y audits.
 
 ## Workflow Discipline
 
 ### Focus and scope
 
 - Batch context file updates in a todo list; commit at PR wrap-up
-- When unrelated work emerges, ask: "Defer to a separate PR?" Options: defer,
-  quick-branch, or consciously expand scope
+- When unrelated work emerges, ask: "Defer to a separate PR?" Options: defer, quick-branch, or consciously expand scope
 
 ### Context-conscious delegation
 
@@ -121,11 +114,9 @@ Prefer subagents for heavy exploration to keep the main context lean.
 
 ### Pre-commit verification
 
-Run the build before committing to catch TypeScript/build errors. Tests run in
-CI, so don't run locally unless debugging a specific failure.
+Run the build before committing to catch TypeScript/build errors. Tests run in CI, so don't run locally unless debugging a specific failure.
 
-For non-code projects (markdown, data files, docs-only repos), run a manual
-content review instead:
+For non-code projects (markdown, data files, docs-only repos), run a manual content review instead:
 
 - **Duplicates across sections** — same item in two tables/categories
 - **Items in wrong categories** — miscategorized by type or scope
@@ -134,27 +125,19 @@ content review instead:
 
 ### Running dev servers
 
-Use VSCode tasks — background processes survive editor restarts and cause port
-conflicts.
+Use VSCode tasks — background processes survive editor restarts and cause port conflicts.
 
 ### Data workflows
 
-For batch operations, use disposable scripts (scratchpad, not committed).
-Prefer APIs over scraping. See [data-practices.md](data-practices.md) for
-detailed patterns.
+For batch operations, use disposable scripts (scratchpad, not committed). Prefer APIs over scraping. See [data-practices.md](data-practices.md) for detailed patterns.
 
 ## PR Wrap-up Checklist
 
-Before merging, verify CI passes (build, lint, tests) and run manual quality
-checks: code duplication, obsolete code, documentation accuracy, attribution,
-and review comment triage. See [pr-workflow.md](pr-workflow.md) for the full
-checklist.
+Before merging, verify CI passes (build, lint, tests) and run manual quality checks: code duplication, obsolete code, documentation accuracy, attribution, and review comment triage. See [pr-workflow.md](pr-workflow.md) for the full checklist.
 
 ## Clarifying Requirements
 
-Prefer asking questions over making assumptions. For complex or vague requests,
-check for missing [CARE](https://www.nngroup.com/articles/careful-prompts/)
-components:
+Prefer asking questions over making assumptions. For complex or vague requests, check for missing [CARE](https://www.nngroup.com/articles/careful-prompts/) components:
 
 | Component | Question to Ask If Missing |
 |-----------|---------------------------|
@@ -165,8 +148,6 @@ components:
 
 ## Shell & Path Handling
 
-Use Unix-style paths on Windows (`/c/path` not `C:\path`). Escape `$` and
-backticks in shell strings. Use `<<'EOF'` (quoted) heredocs for complex content.
+Use Unix-style paths on Windows (`/c/path` not `C:\path`). Escape `$` and backticks in shell strings. Use `<<'EOF'` (quoted) heredocs for complex content.
 
-For cross-platform details, escaping pitfalls, PowerShell interop, and tool
-availability, see [shell-reference.md](shell-reference.md).
+For cross-platform details, escaping pitfalls, PowerShell interop, and tool availability, see [shell-reference.md](shell-reference.md).

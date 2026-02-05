@@ -12,9 +12,7 @@ argument-hint: "[focus-area]"
 
 # Review Lessons
 
-Audit knowledge scattered across memory files, project instructions, and recent
-work. Identify lessons worth promoting to shared templates — and lessons in
-templates that are outdated or redundant.
+Audit knowledge scattered across memory files, project instructions, and recent work. Identify lessons worth promoting to shared templates — and lessons in templates that are outdated or redundant.
 
 ## Arguments
 
@@ -33,11 +31,8 @@ Check for a last-run marker in the workspace memory directory:
 
 The file contains a single ISO date string (e.g., `2026-02-05`).
 
-- If the marker exists, focus on files modified since that date. Use file
-  modification times and `git log --since` in template repos to identify
-  what changed.
-- If the marker doesn't exist (first run) or `$ARGUMENTS` is `full`, do a
-  complete audit.
+- If the marker exists, focus on files modified since that date. Use file modification times and `git log --since` in template repos to identify what changed.
+- If the marker doesn't exist (first run) or `$ARGUMENTS` is `full`, do a complete audit.
 - After completing the report, write the current date to the marker file.
 
 ## Discovery
@@ -54,9 +49,7 @@ Start by finding what exists. Don't hardcode paths — discover them.
 
 ### Shared templates (promoted guidance)
 
-Look for the shared template directory. It's typically referenced via `@import`
-in `~/.claude/CLAUDE.md` or in a workspace `CLAUDE.md`. Follow the import chain
-to find the template root, then read:
+Look for the shared template directory. It's typically referenced via `@import` in `~/.claude/CLAUDE.md` or in a workspace `CLAUDE.md`. Follow the import chain to find the template root, then read:
 - `AGENTS.md` — cross-tool guidance
 - `CLAUDE.md` — Claude Code-specific guidance
 - Any companion files (see Companion File Pattern below)
@@ -95,9 +88,7 @@ Sort every notable item into one of these buckets:
 For each shared template file, assess:
 - **Line count** — AGENTS.md should target ≤150 lines of core rules
 - **Signal-to-noise** — is every instruction earning its token cost?
-- **Companion candidates** — detailed reference material (code snippets,
-  command examples, troubleshooting) that could move to companion files
-  without losing the core rule
+- **Companion candidates** — detailed reference material (code snippets, command examples, troubleshooting) that could move to companion files without losing the core rule
 
 ## Output
 
@@ -145,8 +136,7 @@ templates/ai-context/
 - High-level principles and rules (the "what")
 - Brief rationale when non-obvious (the "why")
 - One-line pattern summaries with a pointer to the companion file
-- Example: "Use merge commits for PRs. See [pr-workflow.md](pr-workflow.md)
-  for the full review and triage process."
+- Example: "Use merge commits for PRs. See [pr-workflow.md](pr-workflow.md) for the full review and triage process."
 
 ### What goes in companion files
 
@@ -164,8 +154,6 @@ templates/ai-context/
 ### Cross-tool compatibility
 
 - AGENTS.md uses standard markdown — no tool-specific syntax
-- Claude Code follows `@import` references; other tools discover files via
-  directory walks
+- Claude Code follows `@import` references; other tools discover files via directory walks
 - Keep companion files self-contained (readable without AGENTS.md context)
-- Don't use `@import` in AGENTS.md itself — it inflates token cost on every
-  request. Let Claude read companions on demand.
+- Don't use `@import` in AGENTS.md itself — it inflates token cost on every request. Let Claude read companions on demand.

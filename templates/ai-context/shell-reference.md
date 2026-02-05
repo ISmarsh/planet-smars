@@ -1,7 +1,6 @@
 # Shell & Path Handling
 
-Cross-platform reference for working on Windows with bash-like shells (Git
-Bash, WSL, MSYS2). For core rules, see [AGENTS.md](AGENTS.md).
+Cross-platform reference for working on Windows with bash-like shells (Git Bash, WSL, MSYS2). For core rules, see [AGENTS.md](AGENTS.md).
 
 ## Cross-Platform Paths
 
@@ -59,8 +58,7 @@ cd /path && npm install
 | Heredoc issues | Use `<<'EOF'` (quoted) to prevent expansion |
 | Unexpected EOF with quoted paths | Trailing `\` before `"` escapes the quote; use PowerShell or forward slashes |
 
-**Trailing backslash issue:** Windows paths ending in `\` cause "unexpected
-EOF" errors:
+**Trailing backslash issue:** Windows paths ending in `\` cause "unexpected EOF" errors:
 ```bash
 # Bad - \' escapes the closing quote
 ls "C:\path\to\dir\"
@@ -87,13 +85,10 @@ powershell -Command "Get-ChildItem -Filter '*foo*'"
 powershell -Command "Get-ChildItem" | grep foo
 ```
 
-The `$_` variable (and other `$` variables) in PowerShell commands passed
-through bash get interpreted by bash first, causing errors like
-`extglob.Name: command not found`.
+The `$_` variable (and other `$` variables) in PowerShell commands passed through bash get interpreted by bash first, causing errors like `extglob.Name: command not found`.
 
 **Workarounds:**
-- Use PowerShell's parameter-based filtering (`-Filter`, `-Include`) instead of
-  `Where-Object`
+- Use PowerShell's parameter-based filtering (`-Filter`, `-Include`) instead of `Where-Object`
 - Use simpler PowerShell commands and filter with bash tools (`grep`, `awk`)
 - For complex PowerShell logic, write a `.ps1` script file and invoke it
 
@@ -107,5 +102,4 @@ Some Unix tools aren't available by default on Windows:
 | `sed` | Limited in Git Bash | Use dedicated Edit tool or PowerShell |
 | `awk` | Limited in Git Bash | Use dedicated tools or scripting |
 
-Prefer tool-native filtering (e.g., `gh api --jq '.field'`) over piping to
-`jq`.
+Prefer tool-native filtering (e.g., `gh api --jq '.field'`) over piping to `jq`.

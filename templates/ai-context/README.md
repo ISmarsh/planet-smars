@@ -6,7 +6,7 @@ Cross-tool AI assistant context following the [AGENTS.md convention](https://git
 
 | File | Purpose | Tool Support |
 |------|---------|--------------|
-| `AGENTS.md` | Core development rules (~170 lines) | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
+| `AGENTS.md` | Core development rules (~150 lines) | Cursor, Copilot, Devin, Windsurf, Cline, etc. |
 | `CLAUDE.md` | Claude Code-specific config (imports AGENTS.md) | Claude Code |
 | `copilot-instructions.md` | Code review priorities | GitHub Copilot |
 | `pr-workflow.md` | PR review commands, Copilot triage, wrap-up checks | Companion (read on demand) |
@@ -18,7 +18,7 @@ Cross-tool AI assistant context following the [AGENTS.md convention](https://git
 ## Architecture
 
 ```
-AGENTS.md          ← Core rules, loaded on every request (~170 lines)
+AGENTS.md          ← Core rules, loaded on every request (~150 lines)
 ├── pr-workflow.md ← Companion: read on demand by agents
 ├── shell-reference.md
 ├── data-practices.md
@@ -61,9 +61,7 @@ In your project's CLAUDE.md, use the `@import` syntax:
 [Your project-specific context here]
 ```
 
-**Important:** The `@path/to/file` syntax is how Claude Code imports content.
-Regular markdown links (`[text](url)`) are just text — they won't be followed.
-The blockquote link is for human readers.
+**Important:** The `@path/to/file` syntax is how Claude Code imports content. Regular markdown links (`[text](url)`) are just text — they won't be followed. The blockquote link is for human readers.
 
 #### Auto-init Submodules
 
@@ -114,5 +112,4 @@ Copy files to your project root and customize as needed.
 
 ## Related Templates
 
-- **[hooks/](../hooks/)** — Claude Code hooks that enforce AGENTS.md conventions
-  (guardrails, reminders, notifications). See [hooks/README.md](../hooks/README.md).
+- **[hooks/](../hooks/)** — Claude Code hooks that enforce AGENTS.md conventions (guardrails, reminders, notifications). See [hooks/README.md](../hooks/README.md).

@@ -125,8 +125,7 @@ gh pr view --comments
 
 If there are unresolved comments (especially from Copilot), summarize them for the user and offer to address any actionable feedback before merging.
 
-If fixes are needed, commit and push, then display the PR URL again so the
-user can follow along.
+If fixes are needed, commit and push, then display the PR URL again so the user can follow along.
 
 ### Final Status
 
@@ -139,7 +138,6 @@ Report final status to user including:
 
 After the PR is complete, ask the user:
 
-> "Any lessons worth capturing? Run `/review-lessons` to audit for promotable
-> insights."
+> "Any lessons worth capturing? Run `/review-lessons` to audit for promotable insights."
 
 This is a quick prompt, not a blocker — skip if the user wants to move on.

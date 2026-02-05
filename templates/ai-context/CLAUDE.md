@@ -22,42 +22,31 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 
 ### Hooks
 
-Claude Code hooks enforce AGENTS.md conventions automatically. See
-[hooks/README.md](../hooks/README.md) for the full reference.
+Claude Code hooks enforce AGENTS.md conventions automatically. See [hooks/README.md](../hooks/README.md) for the full reference.
 
 **Key hooks:**
-- **guardrail.sh** (PreToolUse) — blocks force push, secrets staging,
-  destructive git/rm commands
+- **guardrail.sh** (PreToolUse) — blocks force push, secrets staging, destructive git/rm commands
 - **copilot-reminder.sh** (PostToolUse) — post-push Copilot review reminder
 - **pre-compact.sh** (PreCompact) — captures git state before compaction
 - **context-reminder.sh** (SessionStart) — re-injects conventions after compaction
 - **setup-path.sh** (SessionStart) — adds CLI tools to PATH
 - **notify.sh** (Notification) — desktop notifications (Windows/macOS/Linux)
 
-Hooks live in `~/.claude/hooks/` (user-global) and are registered in
-`~/.claude/settings.json`.
+Hooks live in `~/.claude/hooks/` (user-global) and are registered in `~/.claude/settings.json`.
 
-**Architecture:** Allows in settings are coarse (command prefix like
-`Bash(git push:*)`), hooks are precise (regex on full command). This lets you
-keep convenient auto-approvals while blocking specific dangerous patterns.
+**Architecture:** Allows in settings are coarse (command prefix like `Bash(git push:*)`), hooks are precise (regex on full command). This lets you keep convenient auto-approvals while blocking specific dangerous patterns.
 
-**Windows shell behavior:** `CLAUDE_CODE_SHELL` only affects the Bash tool, not
-standalone hook execution. Hooks on PreCompact, Notification, and SessionStart
-events run via cmd.exe. To run `.sh` scripts from these hooks, prefix the
-command with the shell env var:
+**Windows shell behavior:** `CLAUDE_CODE_SHELL` only affects the Bash tool, not standalone hook execution. Hooks on PreCompact, Notification, and SessionStart events run via cmd.exe. To run `.sh` scripts from these hooks, prefix the command with the shell env var:
 
 ```json
 "command": "\"%CLAUDE_CODE_SHELL%\" ~/.claude/hooks/my-hook.sh"
 ```
 
-PreToolUse/PostToolUse hooks don't need this — they execute within the Bash tool
-context which already uses `CLAUDE_CODE_SHELL`.
+PreToolUse/PostToolUse hooks don't need this — they execute within the Bash tool context which already uses `CLAUDE_CODE_SHELL`.
 
 ### Tool Setup (Claude Code)
 
-The `gh` CLI should be available in PATH for PR management, review workflows,
-and GraphQL API access. The `setup-path.sh` hook handles this automatically
-by extending PATH on session start via `CLAUDE_ENV_FILE`.
+The `gh` CLI should be available in PATH for PR management, review workflows, and GraphQL API access. The `setup-path.sh` hook handles this automatically by extending PATH on session start via `CLAUDE_ENV_FILE`.
 
 ### Import Syntax
 

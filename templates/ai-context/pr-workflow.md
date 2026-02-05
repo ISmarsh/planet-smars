@@ -1,12 +1,10 @@
 # PR Review & Copilot Workflow
 
-Detailed commands and procedures for managing pull request reviews via GitHub
-CLI. For core PR rules, see [AGENTS.md](AGENTS.md).
+Detailed commands and procedures for managing pull request reviews via GitHub CLI. For core PR rules, see [AGENTS.md](AGENTS.md).
 
 ## Fetching Unresolved Review Threads
 
-The REST API (`/pulls/{pr}/comments`) returns all comments with no resolved
-filter. Use GraphQL instead:
+The REST API (`/pulls/{pr}/comments`) returns all comments with no resolved filter. Use GraphQL instead:
 
 ```bash
 gh api graphql -f query='query {
@@ -59,19 +57,15 @@ This is the preferred method — no polling or manual refresh needed.
 
 ### Setup
 
-Enable Copilot reviews via repo Settings > Rules > Rulesets, or manually
-trigger via PR page > Reviewers > gear icon > select
-"copilot-pull-request-reviewer".
+Enable Copilot reviews via repo Settings > Rules > Rulesets, or manually trigger via PR page > Reviewers > gear icon > select "copilot-pull-request-reviewer".
 
 ### Triage Process
 
-**While CI runs**, check for Copilot comments (typically posts within a
-minute).
+**While CI runs**, check for Copilot comments (typically posts within a minute).
 
 Categorize each comment:
 - **Fix**: Real bugs, logic errors, missing edge cases in new code
-- **Dismiss**: Stylistic preferences, over-engineering, suggestions for code
-  not changed in the PR
+- **Dismiss**: Stylistic preferences, over-engineering, suggestions for code not changed in the PR
 - **Already fixed**: Issues addressed by other commits
 
 **Common dismissals:**
@@ -82,25 +76,16 @@ Categorize each comment:
 
 ### Resolution
 
-1. **Push fixes before resolving** — if auto-merge is enabled, resolving
-   threads can trigger merge before your fix commit lands. Always: fix > push >
-   verify > resolve.
-2. **Wait for re-review after pushing fixes** — Copilot reviews each commit
-   separately. After pushing a fix commit, wait for Copilot to review that
-   commit before merging.
-3. **Never batch-resolve** without reading each comment — Copilot occasionally
-   finds real bugs.
-4. **Present dismissals** to user for approval before posting replies — even
-   when dismissal seems obvious based on existing patterns.
-5. **Confirm merge readiness** — after resolving all threads, verify review is
-   complete for latest commits before merging. Dismissal approval does not equal
-   merge approval.
+1. **Push fixes before resolving** — if auto-merge is enabled, resolving threads can trigger merge before your fix commit lands. Always: fix > push > verify > resolve.
+2. **Wait for re-review after pushing fixes** — Copilot reviews each commit separately. After pushing a fix commit, wait for Copilot to review that commit before merging.
+3. **Never batch-resolve** without reading each comment — Copilot occasionally finds real bugs.
+4. **Present dismissals** to user for approval before posting replies — even when dismissal seems obvious based on existing patterns.
+5. **Confirm merge readiness** — after resolving all threads, verify review is complete for latest commits before merging. Dismissal approval does not equal merge approval.
 6. Use the thread management commands above for replying and resolving.
 
 ### Checking if Copilot Review is Complete
 
-Copilot reviews can take 30-60 seconds. To check if the latest commit has been
-reviewed:
+Copilot reviews can take 30-60 seconds. To check if the latest commit has been reviewed:
 
 ```bash
 # Get the latest commit SHA on the PR branch
@@ -127,14 +112,9 @@ Compare this to the current HEAD. If they match, the review is complete.
 
 ### If Copilot Doesn't Review
 
-Sometimes skips commits (small changes, rapid pushes). Manually trigger via
-GitHub UI: PR page > Reviewers (right sidebar) > gear icon > select
-"copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
+Sometimes skips commits (small changes, rapid pushes). Manually trigger via GitHub UI: PR page > Reviewers (right sidebar) > gear icon > select "copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
 
-**Don't confuse "pending" with "skipped."** Copilot reviews can take 30-60
-seconds (sometimes longer). If you check immediately after PR creation and get
-no reviews, wait and recheck before concluding it skipped. Only manually
-trigger after at least 2 minutes with no review.
+**Don't confuse "pending" with "skipped."** Copilot reviews can take 30-60 seconds (sometimes longer). If you check immediately after PR creation and get no reviews, wait and recheck before concluding it skipped. Only manually trigger after at least 2 minutes with no review.
 
 ## Branch Protection
 

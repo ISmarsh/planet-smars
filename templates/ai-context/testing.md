@@ -1,7 +1,6 @@
 # Testing Patterns
 
-Code examples for common testing scenarios. For testing philosophy and
-guidelines, see [AGENTS.md](AGENTS.md).
+Code examples for common testing scenarios. For testing philosophy and guidelines, see [AGENTS.md](AGENTS.md).
 
 ## React Hooks
 

@@ -1,7 +1,6 @@
 # Quality Checklists
 
-Pre-completion checklists for code changes. For core principles, see
-[AGENTS.md](AGENTS.md).
+Pre-completion checklists for code changes. For core principles, see [AGENTS.md](AGENTS.md).
 
 ## Security Checklist
 
