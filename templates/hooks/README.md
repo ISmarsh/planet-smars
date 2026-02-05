@@ -63,6 +63,23 @@ chmod +x ~/.claude/hooks/*.sh
 Then add the hook registrations to `~/.claude/settings.json` (see
 [Settings Configuration](#settings-configuration) below).
 
+### Windows: Configure Shell
+
+On Windows, Claude Code uses `cmd.exe` by default, which can't run `.sh` scripts.
+Add `CLAUDE_CODE_SHELL` to your settings to use Git Bash instead.
+Adjust the path if Git is installed elsewhere (`where bash` to find it):
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_SHELL": "C:\\Program Files\\Git\\bin\\bash.exe"
+  }
+}
+```
+
+This is a top-level key in `settings.json`, not inside `hooks`. Requires Claude Code
+restart to take effect.
+
 ### Settings Configuration
 
 Add to the `"hooks"` key in `~/.claude/settings.json`:
