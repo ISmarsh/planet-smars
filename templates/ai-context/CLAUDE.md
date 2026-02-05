@@ -15,11 +15,6 @@ For AI-assisted commits, use:
 Co-Authored-By: Claude <noreply@anthropic.com>
 ```
 
-Or with model version:
-```
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-```
-
 ### Hooks
 
 Claude Code hooks enforce AGENTS.md conventions automatically. See [hooks/README.md](../hooks/README.md) for the full reference.

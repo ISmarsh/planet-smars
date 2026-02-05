@@ -124,6 +124,14 @@ GitHub has two protection systems:
 
 Prefer rulesets for new repos.
 
+## Fork PRs
+
+When a repo has an `upstream` remote (common for submodules or forked repos), `gh pr create` defaults to the upstream owner. Always specify `--repo` to target the correct fork:
+
+```bash
+gh pr create --repo OWNER/REPO --title "..." --body "..."
+```
+
 ## PR Wrap-up Manual Checks
 
 Before merging, run these manual checks alongside automated CI:
