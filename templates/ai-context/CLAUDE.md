@@ -31,13 +31,17 @@ Hooks live in `~/.claude/hooks/` (user-global) and are registered in `~/.claude/
 
 **Architecture:** Allows in settings are coarse (command prefix like `Bash(git push:*)`), hooks are precise (regex on full command). This lets you keep convenient auto-approvals while blocking specific dangerous patterns.
 
-**Windows shell behavior:** `CLAUDE_CODE_SHELL` only affects the Bash tool, not standalone hook execution. Hooks on PreCompact, Notification, and SessionStart events run via cmd.exe. To run `.sh` scripts from these hooks, prefix the command with the shell env var:
+**Windows shell behavior:** `CLAUDE_CODE_SHELL` controls which shell the **Bash tool** uses — it does NOT affect standalone hook execution. Lifecycle hooks (PreCompact, Notification, SessionStart) resolve `bash` via the system PATH.
+
+**Setup:** Ensure Git Bash's `bin` directory is on the Windows user PATH so that `bash` is globally available. Then use bare `.sh` paths in hook commands — no shell wrapper needed:
 
 ```json
-"command": "\"%CLAUDE_CODE_SHELL%\" ~/.claude/hooks/my-hook.sh"
+"command": "~/.claude/hooks/my-hook.sh"
 ```
 
 PreToolUse/PostToolUse hooks don't need this — they execute within the Bash tool context which already uses `CLAUDE_CODE_SHELL`.
+
+**What doesn't work:** `CLAUDE_CODE_GIT_BASH_PATH` env var (not picked up by hook runner), `"%CLAUDE_CODE_SHELL%"` wrapper (cmd.exe can't reliably expand env vars in JSON command strings).
 
 ### Tool Setup (Claude Code)
 
