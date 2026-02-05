@@ -66,7 +66,8 @@ Then add the hook registrations to `~/.claude/settings.json` (see
 ### Windows: Configure Shell
 
 On Windows, Claude Code uses `cmd.exe` by default, which can't run `.sh` scripts.
-Add `CLAUDE_CODE_SHELL` to your settings to use Git Bash instead:
+Add `CLAUDE_CODE_SHELL` to your settings to use Git Bash instead.
+Adjust the path if Git is installed elsewhere (`where bash` to find it):
 
 ```json
 {
