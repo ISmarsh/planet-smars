@@ -46,20 +46,28 @@ gh run view <RUN_ID> --log-failed
 
 ### Check for Review Comments
 
-While checks run (or after they complete), check for review comments.
-
-**Quick overview:**
+**Initial wait:** If invoked immediately after PR creation (e.g., from `/pr-flow`), wait 60 seconds before the first check. Copilot reviews take about a minute from request to completion — checking earlier always finds nothing.
 
 ```bash
-gh pr view <PR_NUMBER> --comments
+sleep 60
 ```
 
-**Unresolved threads (GraphQL):**
+Then fetch and display review comments using the built-in `/pr-comments` tool for formatted output:
+
+```
+/pr-comments <PR_NUMBER>
+```
+
+Then fetch unresolved thread IDs (needed for triage and resolution):
 
 ```bash
+OWNER_REPO=$(gh repo view --json owner,name -q '"\(.owner.login)/\(.name)"')
+OWNER=${OWNER_REPO%/*}
+REPO=${OWNER_REPO#*/}
+
 gh api graphql -f query='query {
-  repository(owner: "OWNER", name: "REPO") {
-    pullRequest(number: PR_NUMBER) {
+  repository(owner: "'"$OWNER"'", name: "'"$REPO"'") {
+    pullRequest(number: '"$PR_NUMBER"') {
       reviewThreads(first: 100) {
         nodes {
           id
@@ -74,13 +82,7 @@ gh api graphql -f query='query {
 }'
 ```
 
-Derive OWNER and REPO from the remote:
-
-```bash
-gh repo view --json owner,name -q '"\(.owner.login)/\(.name)"'
-```
-
-Filter for `isResolved: false`.
+Filter for `isResolved: false`. Use the `/pr-comments` output for context when triaging.
 
 ### Check Copilot Review Completeness
 
@@ -93,7 +95,7 @@ REVIEWED_COMMIT=$(gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews \
   --jq '[.[] | select(.user.login | contains("copilot"))] | last | .commit_id')
 ```
 
-If they don't match, note that Copilot review is pending. Wait briefly and recheck — reviews take 30-60 seconds. Only flag as "skipped" after 2+ minutes.
+If they don't match, note that Copilot review is pending. Wait briefly and recheck — reviews take about 60 seconds. Only flag as "skipped" after 2+ minutes.
 
 ### Triage Comments
 
@@ -132,7 +134,7 @@ EOF
 git push
 ```
 
-After pushing, **wait for Copilot to re-review** the new commit before resolving threads.
+After pushing, **wait 60 seconds for Copilot to re-review** the new commit before resolving threads. Verify the reviewed commit matches HEAD before proceeding.
 
 ### Reply and Resolve Threads
 

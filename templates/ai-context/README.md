@@ -110,6 +110,15 @@ Copy files to your project root and customize as needed.
 - **What to Flag** — Bugs, security issues, accessibility problems
 - **What NOT to Flag** — Style preferences, over-engineering suggestions
 
+**Distribution note:** GitHub Copilot reads `.github/copilot-instructions.md` from each repo — it does not support `@import` or submodule references. The base template must be copied into each project:
+
+```bash
+mkdir -p .github
+cp templates/ai-context/copilot-instructions.md .github/copilot-instructions.md
+```
+
+Projects append project-specific sections below a `---` separator (e.g., Tailwind theme rules, game terminology). When updating the base template, merge only the portion above the separator to avoid clobbering project-specific content.
+
 ## Related Templates
 
 - **[hooks/](../hooks/)** — Claude Code hooks that enforce AGENTS.md conventions (guardrails, reminders, notifications). See [hooks/README.md](../hooks/README.md).

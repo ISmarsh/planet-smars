@@ -65,3 +65,13 @@ When a task involves gathering information about many items (characters, APIs, d
 This prevents wasted effort on low-priority items and gives the user control over how deep to go.
 
 When parallelizing with subagents, verify completeness of each agent's output before incorporating results. Agent outputs can be truncated, incomplete, or require follow-up queries. Spot-check that returned data covers the expected scope before writing it into project files.
+
+## Licensed Data Attribution
+
+When a project includes data under Creative Commons or similar copyleft licenses:
+
+- **Preserve attribution** — keep `attribution` blocks in data files intact
+- **Note modifications** — track what transformations were applied (cleaning, normalization, enrichment)
+- **ShareAlike** — adapted material stays under the same or compatible license
+- **Keep license files** — maintain a `LICENSE-DATA` or equivalent documenting per-source obligations
+- **Separate code from data** — application code can use a different license (MIT, etc.) when data is displayed as a "collection" rather than "adaptation"
