@@ -73,6 +73,7 @@ Categorize each comment:
 - Dependency array pedantry for stable React setState
 - Suggestions to add complexity for hypothetical future cases
 - Over-abstraction for patterns that appear < 3 times
+- Suggestions assuming human copy-paste audience for agent-targeted docs (skill files, prompt templates)
 
 ### Resolution
 
@@ -112,9 +113,18 @@ Compare this to the current HEAD. If they match, the review is complete.
 
 ### If Copilot Doesn't Review
 
-Sometimes skips commits (small changes, rapid pushes). Manually trigger via GitHub UI: PR page > Reviewers (right sidebar) > gear icon > select "copilot-pull-request-reviewer". The `gh` CLI doesn't support this.
+Sometimes skips commits (small changes, rapid pushes). Manually trigger via GitHub UI: PR page > Reviewers (right sidebar) > gear icon > select "copilot-pull-request-reviewer". The `gh` CLI can't assign bot reviewers (`--add-reviewer` returns HTTP 422 for bot users) — manual trigger is UI-only.
 
 **Don't confuse "pending" with "skipped."** Copilot reviews can take 30-60 seconds (sometimes longer). If you check immediately after PR creation and get no reviews, wait and recheck before concluding it skipped. Only manually trigger after at least 2 minutes with no review.
+
+**Stacked PRs:** When a PR is created against a feature branch (not main) and the parent merges — causing GitHub to auto-update the base to main — Copilot review does NOT re-trigger. Close and recreate the PR to fix this:
+
+```bash
+gh pr close <NUMBER>
+gh pr create --base main --title "..." --body "..."
+```
+
+To avoid the issue entirely, create PRs against main even for stacked work.
 
 ## Branch Protection
 

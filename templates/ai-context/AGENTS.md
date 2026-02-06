@@ -148,6 +148,8 @@ Prefer asking questions over making assumptions. For complex or vague requests, 
 
 ## Shell & Path Handling
 
-Use Unix-style paths on Windows (`/c/path` not `C:\path`). Escape `$` and backticks in shell strings. Use `<<'EOF'` (quoted) heredocs for complex content.
+Use Unix-style paths on Windows (`/c/path` not `C:\path`). Use `<<'EOF'` (quoted) heredocs for complex content.
 
-For cross-platform details, escaping pitfalls, PowerShell interop, and tool availability, see [shell-reference.md](shell-reference.md).
+**PowerShell from bash:** If a PowerShell command uses `$` variables, don't attempt inline escaping — write a `.ps1` file and invoke it with `powershell -ExecutionPolicy Bypass -File script.ps1`. This is the only reliable approach.
+
+For examples, escaping pitfalls, and tool availability, see [shell-reference.md](shell-reference.md).

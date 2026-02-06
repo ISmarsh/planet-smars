@@ -4,6 +4,7 @@ description: Audit accumulated lessons in memory and project files. Identify ins
 user-invocable: true
 allowed-tools:
   - Read
+  - Edit
   - Grep
   - Glob
   - Task
@@ -23,17 +24,29 @@ Audit knowledge scattered across memory files, project instructions, and recent 
 
 ## Run Tracking
 
-Check for a last-run marker in the workspace memory directory:
+Check for a run history log in the workspace memory directory:
 
 ```
-~/.claude/projects/*/memory/.review-lessons-last-run
+~/.claude/projects/*/memory/.review-lessons-log
 ```
 
-The file contains a single ISO date string (e.g., `2026-02-05`).
+The file is an append-only log. Each entry is one line:
 
-- If the marker exists, focus on files modified since that date. Use file modification times and `git log --since` in template repos to identify what changed.
-- If the marker doesn't exist (first run) or `$ARGUMENTS` is `full`, do a complete audit.
-- After completing the report, write the current date to the marker file.
+```
+<ISO datetime> | <scope> | promoted:<N> trimmed:<N> dupes:<N> deferred:<N>
+```
+
+Example:
+
+```
+2026-02-05T14:30:00 | full | promoted:3 trimmed:1 dupes:2 deferred:5
+2026-02-05T18:45:00 | shell | promoted:1 trimmed:0 dupes:0 deferred:2
+```
+
+- **Last entry's datetime** determines the "since" cutoff for incremental runs. Use file modification times and `git log --since` in template repos to identify what changed.
+- If the log doesn't exist (first run) or `$ARGUMENTS` is `full`, do a complete audit.
+- After completing the report, append a new entry with the current ISO datetime, scope, and summary counts.
+- **Scope values:** `full`, `incremental` (empty args), or the focus area string (e.g., `shell`, `git`).
 
 ## Discovery
 

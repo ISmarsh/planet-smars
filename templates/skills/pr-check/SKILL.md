@@ -46,20 +46,22 @@ gh run view <RUN_ID> --log-failed
 
 ### Check for Review Comments
 
-While checks run (or after they complete), check for review comments.
+While checks run (or after they complete), fetch and display review comments using the built-in `/pr-comments` tool for formatted output:
 
-**Quick overview:**
-
-```bash
-gh pr view <PR_NUMBER> --comments
+```
+/pr-comments <PR_NUMBER>
 ```
 
-**Unresolved threads (GraphQL):**
+Then fetch unresolved thread IDs (needed for triage and resolution):
 
 ```bash
+OWNER_REPO=$(gh repo view --json owner,name -q '"\(.owner.login)/\(.name)"')
+OWNER=${OWNER_REPO%/*}
+REPO=${OWNER_REPO#*/}
+
 gh api graphql -f query='query {
-  repository(owner: "OWNER", name: "REPO") {
-    pullRequest(number: PR_NUMBER) {
+  repository(owner: "'"$OWNER"'", name: "'"$REPO"'") {
+    pullRequest(number: '"$PR_NUMBER"') {
       reviewThreads(first: 100) {
         nodes {
           id
@@ -74,13 +76,7 @@ gh api graphql -f query='query {
 }'
 ```
 
-Derive OWNER and REPO from the remote:
-
-```bash
-gh repo view --json owner,name -q '"\(.owner.login)/\(.name)"'
-```
-
-Filter for `isResolved: false`.
+Filter for `isResolved: false`. Use the `/pr-comments` output for context when triaging.
 
 ### Check Copilot Review Completeness
 
