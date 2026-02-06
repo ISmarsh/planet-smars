@@ -25,7 +25,7 @@ INPUT=$(cat)
 
 # Extract fields using Python (jq not available on Windows Git Bash)
 eval "$(echo "$INPUT" | python -c "
-import sys, json, os
+import sys, json, os, shlex
 
 d = json.load(sys.stdin)
 cwd = d.get('cwd', '')
@@ -56,9 +56,9 @@ else:
     title = project
     message = d.get('message', 'Needs your attention')
 
-print(f'TITLE={title!r}')
-print(f'MESSAGE={message!r}')
-print(f'CWD={cwd!r}')
+print(f'TITLE={shlex.quote(title)}')
+print(f'MESSAGE={shlex.quote(message)}')
+print(f'CWD={shlex.quote(cwd)}')
 " 2>/dev/null || echo "TITLE='Claude Code'; MESSAGE='Needs your attention'; CWD=''")"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

@@ -46,7 +46,8 @@ $contentParams = @{ Visual = $visual }
 
 # Click opens VSCode to the project folder via protocol handler — no terminal flash
 if ($Cwd) {
-    $uri = "vscode://file/$($Cwd -replace '\\','/')"
+    $escapedPath = [Uri]::EscapeUriString(($Cwd -replace '\\','/'))
+    $uri = "vscode://file/$escapedPath"
     $contentParams.Launch = $uri
     $contentParams.ActivationType = "Protocol"
 }
