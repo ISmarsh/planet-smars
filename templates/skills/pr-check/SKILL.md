@@ -46,7 +46,13 @@ gh run view <RUN_ID> --log-failed
 
 ### Check for Review Comments
 
-While checks run (or after they complete), fetch and display review comments using the built-in `/pr-comments` tool for formatted output:
+**Initial wait:** If invoked immediately after PR creation (e.g., from `/pr-flow`), wait 30 seconds before the first check. Copilot reviews take 30-60 seconds to appear — checking immediately always finds nothing.
+
+```bash
+sleep 30
+```
+
+Then fetch and display review comments using the built-in `/pr-comments` tool for formatted output:
 
 ```
 /pr-comments <PR_NUMBER>
