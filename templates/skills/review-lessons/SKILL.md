@@ -46,7 +46,7 @@ Example:
 - **Last entry's datetime** determines the "since" cutoff for incremental runs. Use file modification times and `git log --since` in template repos to identify what changed.
 - If the log doesn't exist (first run) or `$ARGUMENTS` is `full`, do a complete audit.
 - After completing the report, append a new entry with the current ISO datetime, scope, and summary counts.
-- **Scope values:** `full`, `incremental` (empty args), or the focus area string (e.g., `shell`, `git`).
+- **Scope values:** `full` (explicit or first run), `incremental` (when `$ARGUMENTS` is empty), or the focus area string when `$ARGUMENTS` names a topic (e.g., `shell`, `git`).
 
 ## Discovery
 

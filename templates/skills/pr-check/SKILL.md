@@ -46,10 +46,10 @@ gh run view <RUN_ID> --log-failed
 
 ### Check for Review Comments
 
-**Initial wait:** If invoked immediately after PR creation (e.g., from `/pr-flow`), wait 30 seconds before the first check. Copilot reviews take 30-60 seconds to appear — checking immediately always finds nothing.
+**Initial wait:** If invoked immediately after PR creation (e.g., from `/pr-flow`), wait 60 seconds before the first check. Copilot reviews take about a minute from request to completion — checking earlier always finds nothing.
 
 ```bash
-sleep 30
+sleep 60
 ```
 
 Then fetch and display review comments using the built-in `/pr-comments` tool for formatted output:
@@ -134,7 +134,7 @@ EOF
 git push
 ```
 
-After pushing, **wait for Copilot to re-review** the new commit before resolving threads.
+After pushing, **wait 60 seconds for Copilot to re-review** the new commit before resolving threads. Verify the reviewed commit matches HEAD before proceeding.
 
 ### Reply and Resolve Threads
 
