@@ -45,7 +45,7 @@ fi
 | `pre-compact.sh` | PreCompact | Captures git state (branch, changes, commits) before context compaction |
 | `context-reminder.sh` | SessionStart (compact) | Re-injects key conventions after compaction |
 | `setup-path.sh` | SessionStart | Adds CLI tools to PATH via `CLAUDE_ENV_FILE` |
-| `notify.sh` / `notify.ps1` | Notification | Desktop notifications (Windows/macOS/Linux) |
+| `notify.sh` / `notify.ps1` | Stop, PermissionRequest, Notification | Desktop notifications with focus detection and click-to-refocus (Windows/macOS/Linux) |
 
 ## Setup
 
@@ -125,6 +125,22 @@ Add to the `"hooks"` key in `~/.claude/settings.json`:
         ]
       }
     ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "~/.claude/hooks/notify.sh", "timeout": 15 }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "~/.claude/hooks/notify.sh", "timeout": 15 }
+        ]
+      }
+    ],
     "Notification": [
       {
         "matcher": "",
@@ -145,14 +161,26 @@ match your workspace directory. The defaults use `/c/Dev` and `C:\Dev`.
 **setup-path.sh**: Add or remove tool paths for your machine. Commented
 examples are included.
 
-**notify.sh / notify.ps1**: Windows requires the
-[BurntToast](https://github.com/Windos/BurntToast) PowerShell module:
+**notify.sh / notify.ps1**: Enriched toast notifications with event-specific messages:
+
+- **Stop**: "Claude finished" with project folder name as title
+- **PermissionRequest**: "Permission needed: Edit foo.ts" with tool context
+- **Notification**: Passes through `message`; uses `title` if present, otherwise project folder name
+
+Features (Windows):
+- **Focus detection** — suppressed when this project's VSCode window is focused; fires when you're in another window
+- **Click-to-refocus** — clicking the toast opens the project's VSCode window via `vscode://` protocol
+- **Custom icon** — set `$iconPath` in `notify.ps1` to a local PNG
+
+Windows requires the [BurntToast](https://github.com/Windos/BurntToast) PowerShell module:
 
 ```powershell
 Install-Module -Name BurntToast -Scope CurrentUser -Force
 ```
 
 macOS and Linux use built-in notification tools (`osascript` and `notify-send`).
+
+**VSCode note**: The `Notification` hook does not fire in the VSCode extension. Use `Stop` and `PermissionRequest` instead — they work in both the CLI and VSCode extension.
 
 ## How Hooks Work
 
@@ -162,6 +190,8 @@ macOS and Linux use built-in notification tools (`osascript` and `notify-send`).
 | PreToolUse | Before a tool runs | JSON with `tool_name`, `tool_input` | Added to context | Shown to Claude on block | 0 = ok, 2 = block |
 | PostToolUse | After a tool runs | JSON with `tool_name`, `tool_input` | Added to context | Ignored | 0 = ok |
 | PreCompact | Before context compaction | JSON with `cwd`, `trigger` | Added to context | Ignored | 0 = ok |
+| Stop | Claude finishes responding | JSON with `cwd`, `stop_hook_active` | Ignored | Ignored | 0 = ok |
+| PermissionRequest | Permission prompt shown | JSON with `cwd`, `tool_name`, `tool_input` | Ignored | Ignored | 0 = ok |
 | Notification | Idle or permission prompt | JSON with `message`, `notification_type` | Ignored | Ignored | 0 = ok |
 
 The `matcher` field in settings is a regex matched against the tool name
