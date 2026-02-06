@@ -95,7 +95,7 @@ REVIEWED_COMMIT=$(gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews \
   --jq '[.[] | select(.user.login | contains("copilot"))] | last | .commit_id')
 ```
 
-If they don't match, note that Copilot review is pending. Wait briefly and recheck — reviews take 30-60 seconds. Only flag as "skipped" after 2+ minutes.
+If they don't match, note that Copilot review is pending. Wait briefly and recheck — reviews take about 60 seconds. Only flag as "skipped" after 2+ minutes.
 
 ### Triage Comments
 
