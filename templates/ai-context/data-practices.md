@@ -7,6 +7,8 @@ Detailed workflows for batch operations, data validation, and external data sour
 When a task requires bulk changes across data files (renaming IDs, wiring cross-references, backfilling fields), write a short disposable script in a scratchpad directory rather than making dozens of manual edits:
 
 - **Read > transform > write** in one pass for consistency
+- **Prototype first** — test the pipeline on 1–3 items end-to-end before running the full batch. Catches format issues, API quirks, and silent failures early.
+- **Design for partial failure** — log per-item success/failure, checkpoint progress, and support resume. External tools (ffmpeg, APIs, ML models) can fail silently or intermittently.
 - Print a summary (counts, per-item breakdown, items not found)
 - Keep the script outside the repo — it's a tool, not a deliverable
 - Delete or leave in scratchpad after use; don't commit it
@@ -22,7 +24,7 @@ After bulk changes or cross-cutting edits, run validation before committing:
 1. If issues found, fix and re-validate
 1. Repeat until clean
 
-Don't skip the re-validation step after fixes — secondary changes often introduce new issues (e.g., fixing a broken reference reveals a missing field elsewhere).
+Re-run the **full** validation sweep after fixes — not just the items you changed. Secondary changes often break adjacent items or reveal previously-masked issues (e.g., fixing a broken reference reveals a missing field elsewhere).
 
 ## Data Integrity Auditing
 
@@ -65,6 +67,17 @@ When a task involves gathering information about many items (characters, APIs, d
 This prevents wasted effort on low-priority items and gives the user control over how deep to go.
 
 When parallelizing with subagents, verify completeness of each agent's output before incorporating results. Agent outputs can be truncated, incomplete, or require follow-up queries. Spot-check that returned data covers the expected scope before writing it into project files.
+
+## Heavy Model Pipelines
+
+When a workflow loads large ML models (speech recognition, diarization, embedding models), minimize model load overhead:
+
+- **Batch items into one invocation** rather than spawning separate processes per item — each process loads the model from scratch
+- **Use worker pools** that load the model once per worker via an initializer, then process multiple items sequentially
+- **Right-size worker count** — more workers means more RAM for duplicate model copies; for CPU-bound ML workloads, fewer workers with more threads often wins
+- **Avoid parallel subagent invocations** for model-heavy commands — they compete for RAM and CPU, often slower than sequential processing within one process
+- **Containerize** when possible — Docker/devcontainers isolate Python/CUDA dependencies from the host and make pipelines reproducible across machines
+- **GPU acceleration** — for supported models (Whisper, pyannote, embedding models), GPU inference is dramatically faster than CPU. Ensure CUDA/ROCm drivers are available inside the container.
 
 ## Licensed Data Attribution
 

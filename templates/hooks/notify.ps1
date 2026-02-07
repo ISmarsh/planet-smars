@@ -44,7 +44,7 @@ $visual = New-BTVisual -BindingGeneric $binding
 
 $contentParams = @{ Visual = $visual }
 
-# Click opens VSCode to the project folder via protocol handler — no terminal flash
+# Click opens VSCode to the project folder via protocol handler - no terminal flash
 if ($Cwd) {
     $escapedPath = [Uri]::EscapeUriString(($Cwd -replace '\\','/'))
     $uri = "vscode://file/$escapedPath"

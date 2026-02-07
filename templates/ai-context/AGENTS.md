@@ -87,6 +87,7 @@ For code examples (hooks, components, utilities), see [testing.md](testing.md).
 - Fix only what was asked — avoid scope creep
 - Consider security implications (XSS, injection, auth)
 - Maintain accessibility (WCAG 2.1 AA)
+- Use ASCII only in executed code (scripts, source files) — reserve non-ASCII (em dashes, smart quotes, arrows) for human-facing documentation
 
 ### Do Not
 
@@ -111,6 +112,10 @@ Before completing any change, verify security and accessibility. See [checklists
 ### Context-conscious delegation
 
 Prefer subagents for heavy exploration to keep the main context lean.
+
+### Multi-session continuity
+
+For work spanning multiple sessions, capture state before ending: current branch, pending changes, what's been verified, what still needs validation. Memory files and todo lists bridge the gap — future sessions start from captured state, not from scratch.
 
 ### Pre-commit verification
 
