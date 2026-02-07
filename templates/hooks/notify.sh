@@ -17,9 +17,9 @@
 #   }]
 #
 # Platform-specific:
-#   Windows — calls notify.ps1 (requires BurntToast module)
-#   macOS   — uses osascript (built-in)
-#   Linux   — uses notify-send (install: apt install libnotify-bin)
+#   Windows - calls notify.ps1 (requires BurntToast module)
+#   macOS   - uses osascript (built-in)
+#   Linux   - uses notify-send (install: apt install libnotify-bin)
 
 INPUT=$(cat)
 
@@ -41,7 +41,7 @@ elif event == 'PermissionRequest':
     # Extract a short description based on tool type
     if tool == 'Bash':
         detail = tool_input.get('command', '')[:60]
-        message = f'Permission needed: {tool} — {detail}'
+        message = f'Permission needed: {tool} - {detail}'
     elif tool in ('Edit', 'Write'):
         path = tool_input.get('file_path', '')
         filename = os.path.basename(path) if path else ''
@@ -65,15 +65,15 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*)
-    # Windows (Git Bash) — delegate to PowerShell + BurntToast
+    # Windows (Git Bash) - delegate to PowerShell + BurntToast
     powershell -ExecutionPolicy Bypass -File "$SCRIPT_DIR/notify.ps1" -Title "$TITLE" -Message "$MESSAGE" -Cwd "$CWD"
     ;;
   Darwin)
-    # macOS — native notification
+    # macOS - native notification
     osascript -e "display notification \"$MESSAGE\" with title \"$TITLE\""
     ;;
   Linux)
-    # Linux — notify-send
+    # Linux - notify-send
     notify-send "$TITLE" "$MESSAGE" 2>/dev/null
     ;;
 esac
