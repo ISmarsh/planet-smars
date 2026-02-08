@@ -102,6 +102,11 @@ FILE_SHARE_NONE = 0  # exclusive -- fails if anyone else has it open
 INVALID_HANDLE_VALUE = ctypes.wintypes.HANDLE(-1).value
 
 CreateFileW = ctypes.windll.kernel32.CreateFileW
+CreateFileW.argtypes = [
+    ctypes.wintypes.LPCWSTR, ctypes.wintypes.DWORD, ctypes.wintypes.DWORD,
+    ctypes.c_void_p, ctypes.wintypes.DWORD, ctypes.wintypes.DWORD,
+    ctypes.wintypes.HANDLE,
+]
 CreateFileW.restype = ctypes.wintypes.HANDLE
 
 handle = CreateFileW(

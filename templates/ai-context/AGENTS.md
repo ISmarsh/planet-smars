@@ -134,7 +134,7 @@ Use Unix-style paths on Windows (`/c/path` not `C:\path`). Use `<<'EOF'` (quoted
 
 **PowerShell from bash:** If a PowerShell command uses `$` variables, don't attempt inline escaping — write a `.ps1` file and invoke it with `powershell -ExecutionPolicy Bypass -File script.ps1`. This is the only reliable approach.
 
-**Windows env vars:** User environment variables set via System Properties are stored in the registry (`HKCU\Environment`) but aren't inherited by already-running processes. `echo %VAR%` will fail in shells started before the variable was set. Use `reg query "HKCU\Environment"` to find them reliably.
+**Windows env vars:** User environment variables set via System Properties are stored in the registry (`HKCU\Environment`) but aren't inherited by already-running processes. Shells started before the change won't see the new value. Use `reg query "HKCU\Environment"` to read them reliably.
 
 For examples, escaping pitfalls, and tool availability, see [shell-reference.md](shell-reference.md).
 

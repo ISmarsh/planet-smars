@@ -45,7 +45,7 @@ cd .planet-smars/templates/github-rulesets
 gh api repos/OWNER/REPO/rulesets -X POST --input main.json
 ```
 
-This creates a single "Protect main" ruleset with: required PRs (thread resolution enforced), deletion/force-push prevention, and Copilot code review on push.
+This creates a ruleset with: required PRs (thread resolution enforced), deletion/force-push prevention, and Copilot code review on push.
 
 Or configure manually via GitHub UI: Settings → Rules → Rulesets → New ruleset
 
