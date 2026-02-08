@@ -36,19 +36,20 @@ Then configure in GitHub:
 1. Go to repo Settings → Pages
 2. Set Source to "GitHub Actions"
 
-## 3. Branch Protection
+## 3. Branch Protection + Copilot Auto-Review
 
-Require PRs for the main branch to prevent accidental direct pushes:
+Apply the shared ruleset template (includes PR requirements, branch protection, and Copilot auto-review):
 
 ```bash
-# Using GitHub rulesets (preferred)
-gh api repos/OWNER/REPO/rulesets -X POST -f name="main protection" \
-  -f target="branch" -f enforcement="active" \
-  --json conditions='{"ref_name":{"include":["refs/heads/main"]}}' \
-  --json rules='[{"type":"pull_request"}]'
+cd .planet-smars/templates/github-rulesets
+gh api repos/OWNER/REPO/rulesets -X POST --input main.json
 ```
 
-Or configure via GitHub UI: Settings → Rules → Rulesets → New ruleset
+This creates a ruleset with: required PRs (thread resolution enforced), deletion/force-push prevention, and Copilot code review on push.
+
+Or configure manually via GitHub UI: Settings → Rules → Rulesets → New ruleset
+
+To opt out of Copilot review, remove the `copilot_code_review` and `copilot_code_review_analysis_tools` rules from the template before applying.
 
 ## 4. Auto-Delete Branches
 
@@ -60,15 +61,16 @@ gh api repos/OWNER/REPO -X PATCH -f delete_branch_on_merge=true
 
 Or configure via GitHub UI: Settings → General → Pull Requests → "Automatically delete head branches"
 
-## 5. Copilot Auto-Review (optional)
+## 5. Copilot Review Instructions (optional)
 
-Enable Copilot to automatically review PRs:
+Copy the shared review instructions so Copilot knows what to flag and what to skip:
 
-1. Settings → Rules → Rulesets
-2. Edit main protection ruleset
-3. Add rule: "Require code review from Copilot"
+```bash
+mkdir -p .github
+cp .planet-smars/templates/ai-context/copilot-instructions.md .github/copilot-instructions.md
+```
 
-Or manually trigger per-PR via Reviewers → gear icon → copilot-pull-request-reviewer
+Append project-specific rules below a `---` separator, same as the base template sync pattern.
 
 ## 6. Accessibility Audit (optional)
 

@@ -8,19 +8,14 @@ Apply to a repo via GitHub API:
 
 ```bash
 gh api repos/OWNER/REPO/rulesets -X POST --input main.json
-gh api repos/OWNER/REPO/rulesets -X POST --input copilot-auto-review.json
 ```
 
-## Rulesets
+## main.json
 
-### main.json
+Single ruleset protecting the default branch:
 
-Branch protection for default branch:
-- Requires pull requests (0 approvers, but thread resolution required)
-- Prevents deletion and force push
-
-### copilot-auto-review.json
-
-Automatic Copilot code review on push:
-- Reviews non-draft PRs on push
-- Uses CodeQL, ESLint, and PMD analysis tools
+- **Pull requests** -- required, with thread resolution (0 approvers)
+- **Deletion** -- prevented
+- **Force push** -- prevented
+- **Copilot code review** -- auto-reviews non-draft PRs on push
+- **Analysis tools** -- CodeQL, ESLint, PMD

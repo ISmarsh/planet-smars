@@ -10,13 +10,7 @@
 
 ## New Project Setup
 
-When initializing a new project with planet-smars as a submodule, follow the [INIT.md checklist](../INIT.md) to configure:
-
-1. **CI workflow** — lint, test, build on PRs
-2. **GitHub Pages deployment** (if applicable)
-3. **Branch protection** — require PRs for main
-4. **Copilot auto-review** (optional)
-5. **Accessibility audit** (optional)
+When initializing a new project with planet-smars as a submodule, follow the [INIT.md checklist](../INIT.md).
 
 ## Git Practices
 
@@ -26,6 +20,7 @@ When initializing a new project with planet-smars as a submodule, follow the [IN
 - Message format: imperative mood, explain *why* not just *what*
 - Include co-author attribution for AI-assisted commits
 - **Never amend after push** — make a new commit instead (amending requires force-push)
+- **Minimize push churn** — accumulate related changes into fewer commits before pushing. Each push triggers a full review cycle; iterating via push-amend-push creates noise and wasted review rounds.
 
 ### Branches
 
@@ -71,12 +66,6 @@ Use `gh pr checks --watch` for CI status. See [pr-workflow.md](pr-workflow.md) f
 
 For code examples (hooks, components, utilities), see [testing.md](testing.md).
 
-### What Not to Test
-
-- Third-party library internals
-- Styling or layout details (unless critical)
-- Simple pass-through components with no logic
-
 ## Code Change Principles
 
 ### Do
@@ -121,12 +110,7 @@ For work spanning multiple sessions, capture state before ending: current branch
 
 Run the build before committing to catch TypeScript/build errors. Tests run in CI, so don't run locally unless debugging a specific failure.
 
-For non-code projects (markdown, data files, docs-only repos), run a manual content review instead:
-
-- **Duplicates across sections** — same item in two tables/categories
-- **Items in wrong categories** — miscategorized by type or scope
-- **Contradictory descriptions** — wording that doesn't match actual behavior
-- **Inconsistent empty fields** — use explicit "—" vs omitting
+For non-code projects, run the manual content review in [checklists.md](checklists.md) instead.
 
 ### Running dev servers
 
@@ -142,14 +126,7 @@ Before merging, verify CI passes (build, lint, tests) and run manual quality che
 
 ## Clarifying Requirements
 
-Prefer asking questions over making assumptions. For complex or vague requests, check for missing [CARE](https://www.nngroup.com/articles/careful-prompts/) components:
-
-| Component | Question to Ask If Missing |
-|-----------|---------------------------|
-| **C**ontext | "What's the background? (project type, user needs, constraints)" |
-| **A**sk | "What specific output do you need? (format, scope, deliverable)" |
-| **R**ules | "Any constraints? (style guide, dependencies, performance limits)" |
-| **E**xamples | "Can you show an example of what you want? (or what you don't want)" |
+Prefer asking questions over making assumptions. For complex or vague requests, check for missing [CARE](https://www.nngroup.com/articles/careful-prompts/) components (Context, Ask, Rules, Examples).
 
 ## Shell & Path Handling
 
@@ -157,4 +134,12 @@ Use Unix-style paths on Windows (`/c/path` not `C:\path`). Use `<<'EOF'` (quoted
 
 **PowerShell from bash:** If a PowerShell command uses `$` variables, don't attempt inline escaping — write a `.ps1` file and invoke it with `powershell -ExecutionPolicy Bypass -File script.ps1`. This is the only reliable approach.
 
+**Windows env vars:** User environment variables set via System Properties are stored in the registry (`HKCU\Environment`) but aren't inherited by already-running processes. Shells started before the change won't see the new value. Use `reg query "HKCU\Environment"` to read them reliably.
+
 For examples, escaping pitfalls, and tool availability, see [shell-reference.md](shell-reference.md).
+
+## Python
+
+Use `utf-8-sig` encoding for files that may be written by PowerShell 5.1 (BOM). Use `Path.is_relative_to()` for path containment checks (not `str.startswith()`). Guard `sys.stderr` before adding `StreamHandler` under `pythonw.exe`. Prefer `python -m pip` over calling `pip` directly.
+
+For examples, Windows-specific patterns, and file locking, see [python-reference.md](python-reference.md).

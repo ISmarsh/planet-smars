@@ -59,3 +59,5 @@ Claude Code uses `@path/to/file` syntax for imports:
 ### copilot-instructions.md Sync
 
 GitHub Copilot does not support `@import` or submodule references — it only reads `.github/copilot-instructions.md` from each repo. Projects copy the base template and append project-specific sections below a `---` separator. When the base template changes, propagate updates to the base portion (above the separator) in each project without overwriting project-specific content below it.
+
+Only add "Do Flag" items for behaviors Copilot misses — don't list things it catches naturally (e.g., injection, null access). Test by observing Copilot reviews before adding new rules.

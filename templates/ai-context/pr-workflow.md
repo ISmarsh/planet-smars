@@ -126,6 +126,12 @@ gh pr create --base main --title "..." --body "..."
 
 To avoid the issue entirely, create PRs against main even for stacked work.
 
+### Repeat Comments Across Rounds
+
+Copilot reviews the full diff on each push, not just the delta. Previously dismissed comments will reappear as new threads if the code they reference hasn't changed. This is expected -- Copilot has no memory of prior dismissals.
+
+When triaging, check if a comment matches a previously dismissed thread before re-analyzing. Reply with "Already addressed in previous round" and resolve.
+
 ## Branch Protection
 
 GitHub has two protection systems:

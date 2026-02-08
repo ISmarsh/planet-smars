@@ -48,6 +48,9 @@ Universal guidance for automated code reviews. Prioritize real bugs and security
 - Suggesting abstractions for "future flexibility"
 - Adding configuration for hardcoded values that won't change
 - Proposing design patterns that add complexity without clear benefit
+- Thread safety guards (locks, queues, dedup sets) for single-user scripts or tools
+- Defensive re-entry guards (`if not logger.handlers`) for functions called exactly once in `main()`
+- Backward-compatibility shims for renaming fields in brand-new config formats
 
 ### Style Preferences
 
@@ -62,8 +65,12 @@ Universal guidance for automated code reviews. Prioritize real bugs and security
 - Framework-specific idioms (even if unfamiliar)
 - Explicit trade-offs noted in comments
 
+### Previously Addressed
+
+- Do not re-raise concerns that have been dismissed in resolved review threads on the same PR
+
 ### Non-Issues
 
 - TODOs or FIXMEs (these are intentional markers)
-- Console.log in development code (unless in production paths)
+- `console.log` in CLI scripts and build tools (use `console.debug` for temporary debugging in app code)
 - Magic numbers that are obvious in context (HTTP status codes, etc.)
