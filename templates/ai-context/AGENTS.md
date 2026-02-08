@@ -157,4 +157,12 @@ Use Unix-style paths on Windows (`/c/path` not `C:\path`). Use `<<'EOF'` (quoted
 
 **PowerShell from bash:** If a PowerShell command uses `$` variables, don't attempt inline escaping — write a `.ps1` file and invoke it with `powershell -ExecutionPolicy Bypass -File script.ps1`. This is the only reliable approach.
 
+**Windows env vars:** User environment variables set via System Properties are stored in the registry (`HKCU\Environment`) but aren't inherited by already-running processes. `echo %VAR%` will fail in shells started before the variable was set. Use `reg query "HKCU\Environment"` to find them reliably.
+
 For examples, escaping pitfalls, and tool availability, see [shell-reference.md](shell-reference.md).
+
+## Python
+
+Use `utf-8-sig` encoding for files that may be written by PowerShell 5.1 (BOM). Use `Path.is_relative_to()` for path containment checks (not `str.startswith()`). Guard `sys.stderr` before adding `StreamHandler` under `pythonw.exe`. Prefer `python -m pip` over calling `pip` directly.
+
+For examples, Windows-specific patterns, and file locking, see [python-reference.md](python-reference.md).
