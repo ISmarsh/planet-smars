@@ -43,6 +43,7 @@ Use `utf-8-sig` for any file that might be written by PowerShell 5.1 (config fil
 logging.basicConfig(level=logging.INFO)
 
 # Good - guard console handlers
+logger = logging.getLogger(__name__)
 if sys.stderr is not None:
     console_handler = logging.StreamHandler()
     logger.addHandler(console_handler)
@@ -63,7 +64,7 @@ Wrap `main()` in try/except that writes to a fallback error file -- unhandled ex
 
 ## Subprocess Safety
 
-Prefer list args or `shlex.quote()` over string interpolation:
+Prefer list args over string interpolation. Avoid `shell=True`:
 
 ```python
 # Bad - command injection via user input
@@ -71,10 +72,6 @@ subprocess.run(f"process {user_input}", shell=True)
 
 # Good - list args, no shell
 subprocess.run(["process", user_input])
-
-# Good - if shell=True is required
-import shlex
-subprocess.run(f"process {shlex.quote(user_input)}", shell=True)
 ```
 
 ## pip Invocation
@@ -104,7 +101,10 @@ OPEN_EXISTING = 3
 FILE_SHARE_NONE = 0  # exclusive -- fails if anyone else has it open
 INVALID_HANDLE_VALUE = ctypes.wintypes.HANDLE(-1).value
 
-handle = ctypes.windll.kernel32.CreateFileW(
+CreateFileW = ctypes.windll.kernel32.CreateFileW
+CreateFileW.restype = ctypes.wintypes.HANDLE
+
+handle = CreateFileW(
     str(file_path), GENERIC_READ, FILE_SHARE_NONE,
     None, OPEN_EXISTING, 0, None
 )

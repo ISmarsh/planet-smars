@@ -109,7 +109,7 @@ This is the most reliable approach for anything involving `$` variables, `Where-
 
 PowerShell 5.1's `-Encoding UTF8` writes a UTF-8 BOM (byte order mark). Other languages reading the output may choke:
 
-- **Python**: `json.load(f)` with `encoding="utf-8"` raises `JSONDecodeError`. Use `encoding="utf-8-sig"` which strips the BOM transparently.
+- **Python**: `open(path, encoding="utf-8")` then `json.load(f)` raises `JSONDecodeError`. Use `open(path, encoding="utf-8-sig")` which strips the BOM transparently.
 - **Node.js**: `JSON.parse(fs.readFileSync(..., 'utf-8'))` fails. Strip with `.replace(/^\uFEFF/, '')`.
 
 PowerShell 7+ defaults to BOM-less UTF-8. This only affects PS 5.1 (ships with Windows, still the default in many environments).

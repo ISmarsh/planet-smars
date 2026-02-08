@@ -26,3 +26,12 @@ Target **WCAG 2.1 AA** compliance:
 - [ ] ARIA attributes used correctly (prefer semantic HTML first)
 
 **Automated testing:** Use Playwright + axe-core for CI audits.
+
+## Manual Content Review (Non-Code Projects)
+
+For markdown, data files, and docs-only repos, check before committing:
+
+- [ ] No duplicates across sections (same item in two tables/categories)
+- [ ] Items in correct categories (not miscategorized by type or scope)
+- [ ] Descriptions match actual behavior (no contradictions)
+- [ ] Consistent empty field handling (use explicit "--" vs omitting)
