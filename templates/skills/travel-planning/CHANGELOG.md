@@ -24,7 +24,6 @@ All notable changes to the Travel Planning Skill will be documented in this file
   - Duration estimation framework
   - Drop-in friendly identification
 - Known MCP integration documentation
-- Example interactions for each mode
 - Best practices and workflow integration guidance
 
 ### Based On
