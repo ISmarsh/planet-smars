@@ -134,8 +134,6 @@ EOF
 git push
 ```
 
-After pushing, **wait 60 seconds for Copilot to re-review** the new commit before resolving threads. Verify the reviewed commit matches HEAD before proceeding.
-
 ### Reply and Resolve Threads
 
 Reply to each comment explaining the action taken:
