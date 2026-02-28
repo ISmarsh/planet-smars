@@ -72,7 +72,7 @@ Claude fluidly switches between modes based on conversation needs and can combin
 To improve this skill:
 - Add destination-specific knowledge (airports, local makers, attractions)
 - Update brand comparisons and shopping guides
-- Add new MCP integrations
+- Add external tool integrations
 - Share what worked/didn't work from actual trips
 
 ## License

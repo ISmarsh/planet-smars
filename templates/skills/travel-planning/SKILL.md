@@ -66,7 +66,7 @@ When user is at airport or encountering issues:
 - **Delayed first flight:** Calculate impact on connections, suggest proactive rebooking
 - **Missed connection:** Explain airline obligations, rebooking process, hotel vouchers
 - **Gate changes:** Help navigate to new gate quickly
-- **Security wait times:** If MCP available, pull current waits; otherwise estimate based on time of day
+- **Security wait times:** Estimate based on time of day and airport size
 
 ### Road Trip vs Flying Analysis
 
@@ -205,7 +205,7 @@ The "Big 4" Hawaiian ukulele brands:
 ### Shopping Location Strategy
 
 When user provides hotel/accommodation address:
-1. **Use maps MCP** (if available) to find authentic shops within reasonable distance
+1. **Find authentic shops** within reasonable distance
 2. **Prioritize local neighborhoods** over tourist districts
 3. **Identify clusters** - areas with multiple quality shops (arts districts, maker spaces)
 4. **Calculate transit** - walking, driving, or public transit time from accommodation
@@ -449,7 +449,7 @@ Don't wait for user to ask - proactively flag:
 
 This skill benefits from:
 - Regular updates to known good shops/makers in popular destinations
-- New MCP integrations as they become available
+- New external tool integrations as they become available
 - User feedback on what worked/didn't work
 - Evolving best practices for specific airports/destinations
 

@@ -40,7 +40,7 @@ All notable changes to the Travel Planning Skill will be documented in this file
 - [ ] Weather integration and clothing recommendations
 
 ### Under Consideration
-- [ ] Integration with specific airline MCPs
+- [ ] Integration with external travel tools
 - [ ] Real-time translation assistance for international travel
 - [ ] Dietary restriction restaurant filtering
 - [ ] Accessibility-focused activity filtering
