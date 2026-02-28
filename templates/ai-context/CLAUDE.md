@@ -55,7 +55,7 @@ Claude Code and SKILL.md files use `@path/to/file` syntax for imports:
 - Paths are relative to the file containing the import
 - Regular markdown links (`[text](url)`) are just text — not followed
 - Max import depth: 5 hops
-- Ignored inside code spans and code blocks (no collision with `@scope/package` names)
+- Ignored inside fenced code blocks (no collision with `@scope/package` names)
 
 ### copilot-instructions.md Sync
 
