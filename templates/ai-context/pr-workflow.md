@@ -78,7 +78,7 @@ Categorize each comment:
 ### Resolution
 
 1. **Push fixes before resolving** — if auto-merge is enabled, resolving threads can trigger merge before your fix commit lands. Always: fix > push > resolve.
-2. **Resolve threads immediately after replying** — no need to wait for Copilot to re-review before resolving. Copilot will review the new commit independently.
+2. **Resolve threads immediately after replying** — no need to wait for Copilot to re-review before resolving. Copilot typically reviews the new commit independently (though it may occasionally skip — see caveats below).
 3. **Never batch-resolve** without reading each comment — Copilot occasionally finds real bugs.
 4. **Present dismissals** to user for approval before posting replies — even when dismissal seems obvious based on existing patterns.
 5. **Confirm merge readiness** — after resolving all threads, verify review is complete for latest commits before merging. Dismissal approval does not equal merge approval.

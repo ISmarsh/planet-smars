@@ -136,6 +136,8 @@ git push
 
 ### Reply and Resolve Threads
 
+After pushing, resolve threads immediately — no need to wait for Copilot to re-review.
+
 Reply to each comment explaining the action taken:
 
 ```bash
