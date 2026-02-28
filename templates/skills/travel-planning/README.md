@@ -98,7 +98,7 @@ To improve this skill:
 
 ## License
 
-Open source - use and modify as needed for your own travel planning.
+MIT License. See the root `LICENSE` file for full terms.
 
 ## Version
 
