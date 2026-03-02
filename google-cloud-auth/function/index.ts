@@ -5,7 +5,7 @@ const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ?? '';
 
 // Production origins allowlist. Override via ALLOWED_ORIGINS env var
 // (comma-separated). Localhost is always allowed for dev.
-const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://ismarsh.github.io')
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || '')
   .split(',')
   .map((o) => o.trim())
   .filter(Boolean);
@@ -64,8 +64,21 @@ export const tokenExchange: HttpFunction = async (req, res) => {
     return;
   }
 
+  if (!CLIENT_ID || !CLIENT_SECRET) {
+    console.error('GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET not configured');
+    res.status(500).json({ error: 'Server misconfigured' });
+    return;
+  }
+
   const appId = req.headers['x-app-id'] ?? 'unknown';
-  const body = req.body as RequestBody;
+  const rawBody = req.body;
+
+  if (!rawBody || typeof rawBody !== 'object' || typeof rawBody.action !== 'string') {
+    res.status(400).json({ error: 'Invalid request body' });
+    return;
+  }
+
+  const body = rawBody as RequestBody;
 
   try {
     if (body.action === 'exchange') {
@@ -95,7 +108,14 @@ export const tokenExchange: HttpFunction = async (req, res) => {
         return;
       }
 
+      if (typeof data.access_token !== 'string' || typeof data.expires_in !== 'number') {
+        console.error(`[${appId}] Unexpected exchange response shape:`, data);
+        res.status(502).json({ error: 'Invalid upstream response' });
+        return;
+      }
+
       console.log(`[${appId}] Token exchange success`);
+      res.set('Cache-Control', 'no-store');
       res.json({
         access_token: data.access_token,
         expires_in: data.expires_in,
@@ -127,7 +147,14 @@ export const tokenExchange: HttpFunction = async (req, res) => {
         return;
       }
 
+      if (typeof data.access_token !== 'string' || typeof data.expires_in !== 'number') {
+        console.error(`[${appId}] Unexpected refresh response shape:`, data);
+        res.status(502).json({ error: 'Invalid upstream response' });
+        return;
+      }
+
       console.log(`[${appId}] Token refresh success`);
+      res.set('Cache-Control', 'no-store');
       res.json({
         access_token: data.access_token,
         expires_in: data.expires_in,

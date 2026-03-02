@@ -4,12 +4,12 @@ Deploy the shared OAuth token exchange Cloud Function with project-specific conf
 
 .DESCRIPTION
 Builds and deploys the token exchange function from the submodule source
-using gcloud-auth-deploy.config.json from the consuming project root.
+using google-cloud-auth.config.json from the consuming project root.
 Run this script from the consuming project root directory.
 
-See planet-smars/templates/ai-context/gcloud-auth.md.
+See planet-smars/templates/ai-context/google-cloud-auth.md.
 
-Config file fields (gcloud-auth-deploy.config.json):
+Config file fields (google-cloud-auth.config.json):
   functionName  (required) - GCP function name
   entryPoint    (required) - exported function name
   secrets       (required) - --set-secrets value
@@ -18,13 +18,13 @@ Config file fields (gcloud-auth-deploy.config.json):
 
 .EXAMPLE
 # From the consuming project root:
-powershell -ExecutionPolicy Bypass -File .planet-smars/scripts/gcloud-auth-deploy.ps1
+powershell -ExecutionPolicy Bypass -File .planet-smars/google-cloud-auth/deploy.ps1
 #>
 
 $ErrorActionPreference = 'Stop'
 
-$ConfigFile = 'gcloud-auth-deploy.config.json'
-$SourceDir = Join-Path $PSScriptRoot '..\cloud-functions\token-exchange'
+$ConfigFile = 'google-cloud-auth.config.json'
+$SourceDir = Join-Path $PSScriptRoot 'function'
 
 if (-not (Test-Path $ConfigFile)) {
     Write-Error "$ConfigFile not found in $(Get-Location). Run this script from the consuming project root."

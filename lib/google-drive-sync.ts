@@ -5,7 +5,7 @@
  * and Drive appDataFolder CRUD, parameterized by a config object.
  * Consumer provides app-specific values (client ID, file name, sanitizer).
  *
- * See planet-smars/templates/ai-context/gcloud-auth.md
+ * See planet-smars/templates/ai-context/google-cloud-auth.md
  */
 
 export interface DriveSyncConfig<T> {
@@ -29,7 +29,7 @@ export interface DriveSync<T> {
   getAccessToken(): string | null;
   initDriveAuth(): boolean;
   silentRefresh(): Promise<string | null>;
-  requestAccessToken(prompt: '' | 'consent'): Promise<string | null>;
+  requestAccessToken(prompt?: '' | 'consent'): Promise<string | null>;
   disconnectDrive(): void;
   loadFromDrive(): Promise<T | null>;
   saveToDrive(data: T): Promise<boolean>;
@@ -120,17 +120,25 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
   // --- Token persistence helpers ---
 
   function storeTokens(access: string, expiry: number, refresh?: string): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, access);
-    localStorage.setItem(TOKEN_EXPIRY_KEY, String(expiry));
-    if (refresh) {
-      localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+    try {
+      localStorage.setItem(ACCESS_TOKEN_KEY, access);
+      localStorage.setItem(TOKEN_EXPIRY_KEY, String(expiry));
+      if (refresh) {
+        localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+      }
+    } catch {
+      // Swallow storage errors (private mode, quota exceeded) -- in-memory tokens still work.
     }
   }
 
   function clearStoredTokens(): void {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(TOKEN_EXPIRY_KEY);
+    try {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(TOKEN_EXPIRY_KEY);
+    } catch {
+      // Ignore storage errors when clearing tokens.
+    }
   }
 
   // --- Silent refresh (code flow) ---
@@ -175,9 +183,13 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
       }
 
       const data = await res.json();
+      if (typeof data.access_token !== 'string' || typeof data.expires_in !== 'number') {
+        console.error(`${logPrefix} Silent refresh returned invalid payload:`, data);
+        return null;
+      }
       accessToken = data.access_token;
       tokenExpiry = Date.now() + data.expires_in * 1000;
-      storeTokens(accessToken!, tokenExpiry);
+      storeTokens(accessToken, tokenExpiry);
       return accessToken;
     } catch (err) {
       console.error(`${logPrefix} Silent refresh network error:`, err);
@@ -225,9 +237,14 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
             }
 
             const data = await res.json();
+            if (typeof data.access_token !== 'string' || typeof data.expires_in !== 'number') {
+              console.error(`${logPrefix} Token exchange returned invalid payload:`, data);
+              resolve(null);
+              return;
+            }
             accessToken = data.access_token;
             tokenExpiry = Date.now() + data.expires_in * 1000;
-            storeTokens(accessToken!, tokenExpiry, data.refresh_token);
+            storeTokens(accessToken, tokenExpiry, data.refresh_token);
             resolve(accessToken);
           } catch (err) {
             console.error(`${logPrefix} Token exchange network error:`, err);
@@ -266,7 +283,13 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
 
   function disconnectDrive(): void {
     if (accessToken) {
-      google.accounts.oauth2.revoke(accessToken);
+      try {
+        if (typeof google !== 'undefined' && google.accounts?.oauth2?.revoke) {
+          google.accounts.oauth2.revoke(accessToken);
+        }
+      } catch {
+        // Revoke is best-effort; token will expire on its own.
+      }
     }
     accessToken = null;
     tokenExpiry = 0;
@@ -298,7 +321,7 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
     const headers = await getHeaders();
     const params = new URLSearchParams({
       spaces: 'appDataFolder',
-      q: `name='${fileName}' and trashed=false`,
+      q: `name='${fileName.replace(/'/g, "\\'")}' and trashed=false`,
       fields: 'files(id,modifiedTime)',
       orderBy: 'modifiedTime desc',
       pageSize: '1',

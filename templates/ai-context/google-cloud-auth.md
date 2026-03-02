@@ -34,24 +34,24 @@ This pattern is implemented as shared code in planet-smars. Consuming projects p
 
 ```
 planet-smars/
-  cloud-functions/token-exchange/   # Cloud Function source (generic)
-    index.ts                        # HTTP handler (export: tokenExchange)
-    package.json                    # Dependencies + deploy script ref
-    tsconfig.json                   # Node 22 TypeScript config
+  google-cloud-auth/
+    function/                       # Cloud Function source (generic)
+      index.ts                      # HTTP handler (export: tokenExchange)
+      package.json                  # Dependencies + deploy script ref
+      tsconfig.json                 # Node 22 TypeScript config
+    deploy.ps1                      # Zero-config deploy (auto-discovers source + config)
   lib/
     google-drive-sync.ts            # createDriveSync<T>() factory
     local-storage-sync.ts           # createLocalStorage<T>() factory
   types/
     google-identity.d.ts            # GIS ambient type declarations
-  scripts/
-    gcloud-auth-deploy.ps1       # Zero-config deploy (auto-discovers source + config)
   templates/ai-context/
-    gcloud-auth.md                  # This doc
+    google-cloud-auth.md            # This doc
 ```
 
 ### What consuming projects provide
 
-- **`gcloud-auth-deploy.config.json`** at repo root -- per-project function name, entry point, and secret references
+- **`google-cloud-auth.config.json`** at repo root -- per-project function name, entry point, and secret references
 - **App-specific config** -- env vars for client ID, file name, scope, token exchange URL
 - **App-specific sanitize function** -- passed to the factory for data validation/migration
 
@@ -194,7 +194,7 @@ For GIS popup-based code flow, use `'postmessage'` as the `redirect_uri` in the 
 
 ### Source
 
-The function source lives in `planet-smars/cloud-functions/token-exchange/`. It exports a single `tokenExchange` HTTP handler with two actions:
+The function source lives in `planet-smars/google-cloud-auth/function/`. It exports a single `tokenExchange` HTTP handler with two actions:
 
 ```
 POST /token-exchange
@@ -207,7 +207,7 @@ X-App-Id: my-app
 
 ### CORS
 
-Origins are configured via the `ALLOWED_ORIGINS` env var (comma-separated). Defaults to `https://ismarsh.github.io`. Localhost is always allowed for dev.
+Origins are configured via the `ALLOWED_ORIGINS` env var (comma-separated). Must be explicitly set -- defaults to empty (fail closed). Localhost is always allowed for dev.
 
 To add origins without changing code, update the env var and redeploy:
 
@@ -283,7 +283,7 @@ done
 
 ### 4. Deploy
 
-Each consuming project has a `gcloud-auth-deploy.config.json` at the repo root:
+Each consuming project has a `google-cloud-auth.config.json` at the repo root:
 
 ```json
 {
@@ -298,10 +298,10 @@ The `entryPoint` must be `tokenExchange` (matching the shared source export). Th
 Deploy from the consuming project root:
 
 ```bash
-powershell -ExecutionPolicy Bypass -File .planet-smars/scripts/gcloud-auth-deploy.ps1
+powershell -ExecutionPolicy Bypass -File .planet-smars/google-cloud-auth/deploy.ps1
 ```
 
-The script auto-discovers the function source relative to its own location in the submodule, and reads `gcloud-auth-deploy.config.json` from the current directory. It handles `npm install`, build, and `gcloud` deploy. Region defaults to us-central1, runtime to nodejs22 -- override by adding those fields to the config.
+The script auto-discovers the function source relative to its own location in the submodule, and reads `google-cloud-auth.config.json` from the current directory. It handles `npm install`, build, and `gcloud` deploy. Region defaults to us-central1, runtime to nodejs22 -- override by adding those fields to the config.
 
 ### 5. Wire up deployment
 
@@ -315,7 +315,7 @@ Lessons from first deployment (ohm project, March 2025):
 - **Node.js runtime deprecation**: Google deprecates Node.js versions on the community EOL date. Node 20 EOL is April 2026. Use `nodejs22` to stay current. The deploy script defaults to nodejs22.
 - **PowerShell quoting**: the `--set-secrets` flag uses commas. PowerShell splits on unquoted commas. If deploying manually, quote the value: `--set-secrets="KEY1=val:latest,KEY2=val:latest"`. The shared deploy script handles this.
 - **No CI deploy**: Cloud Function changes are infrequent and require `gcloud` auth. Manual deploy from the submodule source directory is sufficient. Note this in the consuming project's CLAUDE.md.
-- **Vitest test leakage**: if the cloud function directory has its own `node_modules`, vitest may pick up tests from those dependencies. Add `'cloud-functions'` to the vitest `exclude` array.
+- **Vitest test leakage**: if the cloud function directory has its own `node_modules`, vitest may pick up tests from those dependencies. Add `'google-cloud-auth'` to the vitest `exclude` array.
 - **`gcloud` on Windows**: the default installer puts the CLI in `%LOCALAPPDATA%\Google\Cloud SDK\`. The `setup-path.sh` hook adds it to Claude's bash PATH. The deploy script uses PowerShell where gcloud is on the user PATH natively.
 - **Function renaming**: GCP does not support in-place renames. Deploy a new function with the new name, update `VITE_TOKEN_EXCHANGE_URL` in consuming apps, then delete the old function: `gcloud functions delete old-name --region us-central1 --gen2`.
 
@@ -375,7 +375,7 @@ Create a budget alert at the billing account level:
 
 First deployed in the [ohm](https://github.com/ISmarsh/ohm) project (PR #11). Key files:
 
-- `gcloud-auth-deploy.config.json` -- per-project deploy parameters
+- `google-cloud-auth.config.json` -- per-project deploy parameters
 - `src/utils/google-drive.ts` -- thin wrapper using `createDriveSync<OhmBoard>()`
 - `src/utils/storage.ts` -- thin wrapper using `createLocalStorage<OhmBoard>()`
 - `src/utils/google-drive.test.ts` -- 19 tests covering both flows (factory-based, no module cache tricks)

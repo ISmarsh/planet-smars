@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
-    "deploy": "powershell -ExecutionPolicy Bypass -File ../../scripts/deploy-cloud-function.ps1"
+    "deploy": "powershell -ExecutionPolicy Bypass -File ../deploy.ps1"
   },
   "dependencies": {
     "@google-cloud/functions-framework": "^3.0.0"
