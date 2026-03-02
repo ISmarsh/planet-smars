@@ -82,8 +82,8 @@ export const tokenExchange: HttpFunction = async (req, res) => {
 
   try {
     if (body.action === 'exchange') {
-      if (!body.code || !body.redirect_uri) {
-        res.status(400).json({ error: 'Missing code or redirect_uri' });
+      if (typeof body.code !== 'string' || !body.code || typeof body.redirect_uri !== 'string' || !body.redirect_uri) {
+        res.status(400).json({ error: 'Missing or invalid code or redirect_uri' });
         return;
       }
 
@@ -122,8 +122,8 @@ export const tokenExchange: HttpFunction = async (req, res) => {
         refresh_token: data.refresh_token,
       });
     } else if (body.action === 'refresh') {
-      if (!body.refresh_token) {
-        res.status(400).json({ error: 'Missing refresh_token' });
+      if (typeof body.refresh_token !== 'string' || !body.refresh_token) {
+        res.status(400).json({ error: 'Missing or invalid refresh_token' });
         return;
       }
 

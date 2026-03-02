@@ -155,15 +155,24 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
   }
 
   async function doSilentRefresh(): Promise<string | null> {
-    const cachedToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-    const cachedExpiry = Number(localStorage.getItem(TOKEN_EXPIRY_KEY) || '0');
+    let cachedToken: string | null = null;
+    let cachedExpiry = 0;
+    let refreshToken: string | null = null;
+
+    try {
+      cachedToken = localStorage.getItem(ACCESS_TOKEN_KEY);
+      cachedExpiry = Number(localStorage.getItem(TOKEN_EXPIRY_KEY) || '0');
+      refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    } catch {
+      return null;
+    }
+
     if (cachedToken && Date.now() < cachedExpiry - 60_000) {
       accessToken = cachedToken;
       tokenExpiry = cachedExpiry;
       return accessToken;
     }
 
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
     if (!refreshToken) return null;
 
     try {
