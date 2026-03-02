@@ -24,3 +24,4 @@ Thumbs.db
 # Template testing artifacts
 templates/*/package-lock.json
 google-cloud-auth/function/package-lock.json
+google-cloud-auth/function/.gcloudignore
