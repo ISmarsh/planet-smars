@@ -198,8 +198,8 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
       }
       accessToken = data.access_token;
       tokenExpiry = Date.now() + data.expires_in * 1000;
-      storeTokens(accessToken, tokenExpiry);
-      return accessToken;
+      storeTokens(data.access_token, tokenExpiry);
+      return data.access_token;
     } catch (err) {
       console.error(`${logPrefix} Silent refresh network error:`, err);
       return null;
@@ -253,8 +253,8 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
             }
             accessToken = data.access_token;
             tokenExpiry = Date.now() + data.expires_in * 1000;
-            storeTokens(accessToken, tokenExpiry, data.refresh_token);
-            resolve(accessToken);
+            storeTokens(data.access_token, tokenExpiry, data.refresh_token);
+            resolve(data.access_token);
           } catch (err) {
             console.error(`${logPrefix} Token exchange network error:`, err);
             resolve(null);
