@@ -22,6 +22,11 @@ if [ -n "$CLAUDE_ENV_FILE" ]; then
     echo "export PATH=\"\$PATH:$APPDATA/npm\"" >> "$CLAUDE_ENV_FILE"
   fi
 
+  # Google Cloud SDK (user-level install default location)
+  if [ -d "$LOCALAPPDATA/Google/Cloud SDK/google-cloud-sdk/bin" ]; then
+    echo "export PATH=\"\$PATH:$LOCALAPPDATA/Google/Cloud SDK/google-cloud-sdk/bin\"" >> "$CLAUDE_ENV_FILE"
+  fi
+
   # Python (update version number as needed)
   # if [ -d "/c/Program Files/Python313" ]; then
   #   echo 'export PATH="$PATH:/c/Program Files/Python313"' >> "$CLAUDE_ENV_FILE"
