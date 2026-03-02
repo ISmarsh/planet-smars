@@ -32,9 +32,13 @@ For static sites deployed to GitHub Pages:
 cp .planet-smars/templates/github-workflows/deploy-gh-pages.yml .github/workflows/
 ```
 
-Then configure in GitHub:
-1. Go to repo Settings → Pages
-2. Set Source to "GitHub Actions"
+Then enable GitHub Pages with Actions as the build source:
+
+```bash
+gh api repos/OWNER/REPO/pages --method POST -f build_type=workflow
+```
+
+If Pages is already enabled and just needs switching from branch to Actions, use `PUT` instead of `POST`.
 
 ## 3. Branch Protection + Copilot Auto-Review
 

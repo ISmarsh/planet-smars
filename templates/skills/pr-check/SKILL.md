@@ -44,15 +44,33 @@ If checks fail, report which ones and offer to investigate. Read the failed chec
 gh run view <RUN_ID> --log-failed
 ```
 
-### Check for Review Comments
+### Wait for Copilot Review (Progressive Backoff)
 
-**Initial wait:** If invoked immediately after PR creation (e.g., from `/pr-flow`), wait 60 seconds before the first check. Copilot reviews take about a minute from request to completion — checking earlier always finds nothing.
+Use progressive backoff to wait for Copilot review. Start at 30s, increase by 30s each attempt, stop when the wait would exceed 150s (~7 min total).
 
 ```bash
-sleep 60
+OWNER_REPO=$(gh repo view --json owner,name -q '"\(.owner.login)/\(.name)"')
+OWNER=${OWNER_REPO%/*}
+REPO=${OWNER_REPO#*/}
+LATEST_COMMIT=$(gh pr view <PR_NUMBER> --json headRefOid -q .headRefOid)
+
+WAIT=30
+while [ $WAIT -le 150 ]; do
+  sleep $WAIT
+  REVIEWED_COMMIT=$(gh api "repos/$OWNER/$REPO/pulls/<PR_NUMBER>/reviews" \
+    --jq '[.[] | select(.user.login | contains("copilot"))] | last | .commit_id')
+  if [ "$LATEST_COMMIT" = "$REVIEWED_COMMIT" ]; then
+    break
+  fi
+  WAIT=$((WAIT + 30))
+done
 ```
 
-Then fetch and display review comments using the built-in `/pr-comments` tool for formatted output:
+If `LATEST_COMMIT` still doesn't match `REVIEWED_COMMIT` after all attempts, report Copilot review as unavailable and proceed with any existing comments.
+
+### Fetch Review Comments
+
+Fetch and display review comments using the built-in `/pr-comments` tool for formatted output:
 
 ```
 /pr-comments <PR_NUMBER>
@@ -61,10 +79,6 @@ Then fetch and display review comments using the built-in `/pr-comments` tool fo
 Then fetch unresolved thread IDs (needed for triage and resolution):
 
 ```bash
-OWNER_REPO=$(gh repo view --json owner,name -q '"\(.owner.login)/\(.name)"')
-OWNER=${OWNER_REPO%/*}
-REPO=${OWNER_REPO#*/}
-
 gh api graphql -f query='query {
   repository(owner: "'"$OWNER"'", name: "'"$REPO"'") {
     pullRequest(number: '"$PR_NUMBER"') {
@@ -83,19 +97,6 @@ gh api graphql -f query='query {
 ```
 
 Filter for `isResolved: false`. Use the `/pr-comments` output for context when triaging.
-
-### Check Copilot Review Completeness
-
-If the repo uses Copilot auto-review, verify the latest commit has been reviewed:
-
-```bash
-LATEST_COMMIT=$(gh pr view <PR_NUMBER> --json headRefOid -q .headRefOid)
-
-REVIEWED_COMMIT=$(gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews \
-  --jq '[.[] | select(.user.login | contains("copilot"))] | last | .commit_id')
-```
-
-If they don't match, note that Copilot review is pending. Wait briefly and recheck — reviews take about 60 seconds. Only flag as "skipped" after 2+ minutes.
 
 ### Triage Comments
 

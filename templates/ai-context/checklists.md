@@ -24,6 +24,11 @@ Target **WCAG 2.1 AA** compliance:
 - [ ] Text has sufficient contrast (4.5:1 for normal, 3:1 for large)
 - [ ] Page has proper heading hierarchy (h1 → h2 → h3)
 - [ ] ARIA attributes used correctly (prefer semantic HTML first)
+- [ ] Icon-only buttons have `aria-label` describing their action
+- [ ] Toggle buttons use `aria-pressed` to expose on/off state
+- [ ] Responsive collapsibles: don't attach `aria-expanded` to elements whose
+      controlled content is always visible at the current breakpoint; use a
+      separate `md:hidden` toggle button with ARIA only where collapse is active
 
 **Automated testing:** Use Playwright + axe-core for CI audits.
 
