@@ -8,7 +8,7 @@ Google Identity Services (GIS) implicit OAuth flow stores access tokens in memor
 
 ## Solution
 
-A lightweight GCP Cloud Run function (gen2) acts as an OAuth token exchange proxy:
+A lightweight GCP Cloud Function (gen2, runs on Cloud Run) acts as an OAuth token exchange proxy:
 
 1. Client gets an authorization code via GIS `initCodeClient` (popup)
 2. Cloud Function exchanges the code for access + refresh tokens using the client secret
@@ -289,11 +289,12 @@ Each consuming project has a `google-cloud-auth.config.json` at the repo root:
 {
   "functionName": "my-app-token-exchange",
   "entryPoint": "tokenExchange",
-  "secrets": "GOOGLE_CLIENT_ID=my-client-id:latest,GOOGLE_CLIENT_SECRET=my-client-secret:latest"
+  "secrets": "GOOGLE_CLIENT_ID=my-client-id:latest,GOOGLE_CLIENT_SECRET=my-client-secret:latest",
+  "envVars": "ALLOWED_ORIGINS=https://ismarsh.github.io"
 }
 ```
 
-The `entryPoint` must be `tokenExchange` (matching the shared source export). The `functionName` is per-project and determines the deployed URL.
+The `entryPoint` must be `tokenExchange` (matching the shared source export). The `functionName` is per-project and determines the deployed URL. `envVars` sets non-secret environment variables (like `ALLOWED_ORIGINS`) during deploy.
 
 Deploy from the consuming project root:
 

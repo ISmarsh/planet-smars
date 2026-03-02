@@ -13,6 +13,7 @@ Config file fields (google-cloud-auth.config.json):
   functionName  (required) - GCP function name
   entryPoint    (required) - exported function name
   secrets       (required) - --set-secrets value
+  envVars       (optional) - --set-env-vars value (e.g., ALLOWED_ORIGINS=https://example.com)
   region        (optional) - default: us-central1
   runtime       (optional) - default: nodejs22
 
@@ -41,6 +42,7 @@ $config = Get-Content $ConfigFile -Raw | ConvertFrom-Json
 $functionName = $config.functionName
 $entryPoint = $config.entryPoint
 $secrets = $config.secrets
+$envVars = $config.envVars
 $region = if ($config.region) { $config.region } else { 'us-central1' }
 $runtime = if ($config.runtime) { $config.runtime } else { 'nodejs22' }
 
@@ -66,15 +68,21 @@ try {
         exit $LASTEXITCODE
     }
 
-    gcloud functions deploy $functionName `
-        --gen2 `
-        --runtime="$runtime" `
-        --trigger-http `
-        --allow-unauthenticated `
-        --entry-point="$entryPoint" `
-        --source=. `
-        --region="$region" `
-        --set-secrets="$secrets"
+    $deployArgs = @(
+        'functions', 'deploy', $functionName,
+        '--gen2',
+        "--runtime=$runtime",
+        '--trigger-http',
+        '--allow-unauthenticated',
+        "--entry-point=$entryPoint",
+        '--source=.',
+        "--region=$region",
+        "--set-secrets=$secrets"
+    )
+    if ($envVars) {
+        $deployArgs += "--set-env-vars=$envVars"
+    }
+    & gcloud @deployArgs
 
     if ($LASTEXITCODE -ne 0) {
         Write-Error 'Deploy failed'
