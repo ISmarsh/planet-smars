@@ -5,7 +5,7 @@
  * and Drive appDataFolder CRUD, parameterized by a config object.
  * Consumer provides app-specific values (client ID, file name, sanitizer).
  *
- * See planet-smars/templates/ai-context/gcp-oauth-token-exchange.md
+ * See planet-smars/templates/ai-context/gcloud-auth.md
  */
 
 export interface DriveSyncConfig<T> {

@@ -23,3 +23,4 @@ Thumbs.db
 
 # Template testing artifacts
 templates/*/package-lock.json
+cloud-functions/*/package-lock.json
