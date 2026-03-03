@@ -195,9 +195,13 @@ After merging, prune stale local branches whose remotes are gone:
 
 ```bash
 git fetch --prune
-gone_branches=$(git branch -vv | awk '/: gone]/{print $1}')
-if [ -n "$gone_branches" ]; then
+# Collect branches whose upstream is marked as [gone] into an array
+mapfile -t gone_branches < <(
+  git for-each-ref --format='%(refname:short) %(upstream:track)' refs/heads |
+    awk '$2 ~ /\[gone\]$/ {print $1}'
+)
+if ((${#gone_branches[@]})); then
   # Try safe delete first; fall back to force-delete if needed
-  git branch -d $gone_branches || git branch -D $gone_branches
+  git branch -d "${gone_branches[@]}" || git branch -D "${gone_branches[@]}"
 fi
 ```
