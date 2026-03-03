@@ -2,6 +2,12 @@
 name: pr-check
 description: Watch CI checks and triage review comments on an existing PR
 user-invocable: true
+allowed-tools:
+  - Bash(git *)
+  - Bash(gh *)
+  - Read
+  - Grep
+  - Agent
 argument-hint: "[PR number]"
 ---
 

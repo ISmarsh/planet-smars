@@ -42,7 +42,7 @@ Use `vi.stubGlobal()` instead of direct assignment for proper cleanup between te
 // Bad — leaks across tests
 global.fetch = vi.fn();
 
-// Good — auto-restored by vitest
+// Good — cleaned up by vi.restoreAllMocks() or vi.unstubAllGlobals()
 vi.stubGlobal('fetch', vi.fn());
 ```
 
