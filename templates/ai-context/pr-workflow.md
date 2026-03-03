@@ -195,5 +195,9 @@ After merging, prune stale local branches whose remotes are gone:
 
 ```bash
 git fetch --prune
-git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+gone_branches=$(git branch -vv | awk '/: gone]/{print $1}')
+if [ -n "$gone_branches" ]; then
+  # Try safe delete first; fall back to force-delete if needed
+  git branch -d $gone_branches || git branch -D $gone_branches
+fi
 ```
