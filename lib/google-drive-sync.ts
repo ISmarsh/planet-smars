@@ -5,7 +5,7 @@
  * and Drive appDataFolder CRUD, parameterized by a config object.
  * Consumer provides app-specific values (client ID, file name, sanitizer).
  *
- * See toolbox/templates/ai-context/google-cloud-auth.md
+ * See templates/ai-context/google-cloud-auth.md (or .toolbox/templates/ai-context/google-cloud-auth.md in consuming repos).
  */
 
 export interface DriveSyncConfig<T> {

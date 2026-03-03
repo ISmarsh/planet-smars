@@ -33,7 +33,7 @@ Browser (GitHub Pages)          Cloud Function              Google OAuth
 This pattern is implemented as shared code in toolbox. Consuming projects pull it in via the submodule:
 
 ```
-toolbox/
+.toolbox/
   google-cloud-auth/
     function/                       # Cloud Function source (generic)
       index.ts                      # HTTP handler (export: tokenExchange)
@@ -194,7 +194,7 @@ For GIS popup-based code flow, use `'postmessage'` as the `redirect_uri` in the 
 
 ### Source
 
-The function source lives in `toolbox/google-cloud-auth/function/`. It exports a single `tokenExchange` HTTP handler with two actions:
+The function source lives in `.toolbox/google-cloud-auth/function/`. It exports a single `tokenExchange` HTTP handler with two actions:
 
 ```
 POST /token-exchange
