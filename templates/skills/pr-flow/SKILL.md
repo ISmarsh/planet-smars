@@ -1,9 +1,6 @@
 ---
 name: pr-flow
 description: Create a PR with standard workflow (branch, commit, push, PR). Hands off to /pr-check for CI and reviews.
-allowed-tools:
-  - Bash(git *)
-  - Bash(gh *)
 ---
 
 # PR Flow

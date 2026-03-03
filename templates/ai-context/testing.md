@@ -33,3 +33,17 @@ it('handles edge cases', () => {
   expect(myUtil('input')).toBe('output')
 })
 ```
+
+## Global Stubs (Vitest)
+
+Use `vi.stubGlobal()` instead of direct assignment for proper cleanup between tests:
+
+```typescript
+// Bad — leaks across tests
+global.fetch = vi.fn();
+
+// Good — auto-restored by vitest
+vi.stubGlobal('fetch', vi.fn());
+```
+
+Works for `fetch`, `localStorage`, `window.matchMedia`, and any other global.
