@@ -1,4 +1,4 @@
-# Skills Templates
+# Claude Code Skills
 
 Claude Code skills (custom slash commands) for common workflows.
 
@@ -8,7 +8,7 @@ Claude Code skills (custom slash commands) for common workflows.
 |-------|-------------|---------|
 | `pr-flow/` | Create PR with standard workflow (branch, commit, push, PR). Hands off to `/pr-check` for CI and reviews. | `/pr-flow` |
 | `pr-check/` | Watch CI checks and triage review comments on an existing PR | `/pr-check` |
-| `review-lessons/` | Audit memory and project files for insights to promote to shared templates | `/review-lessons` |
+| `review-lessons/` | Audit memory and project files for insights to promote to shared guidance | `/review-lessons` |
 | `travel-planning/` | Comprehensive travel planning covering flight logistics, local shopping discovery, and activity planning | `/travel-planning` |
 
 ## Installation
@@ -18,7 +18,7 @@ Claude Code skills (custom slash commands) for common workflows.
 Install once, available in all projects. Best for general-purpose skills like `pr-flow`.
 
 ```bash
-cp -r templates/skills/pr-flow ~/.claude/skills/
+cp -r .toolbox/claude-skills/pr-flow ~/.claude/skills/
 ```
 
 Skills in `~/.claude/skills/` are loaded for every project. Update manually when
@@ -31,7 +31,7 @@ skill version-controlled with the project.
 
 ```bash
 mkdir -p .claude/skills
-cp -r templates/skills/pr-flow .claude/skills/
+cp -r .toolbox/claude-skills/pr-flow .claude/skills/
 ```
 
 **Note:** Claude Code doesn't support loading skills from arbitrary paths (like
