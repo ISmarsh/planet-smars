@@ -47,3 +47,19 @@ vi.stubGlobal('fetch', vi.fn());
 ```
 
 Works for `fetch`, `localStorage`, `window.matchMedia`, and any other global.
+
+## vi.mock Factory Hoisting
+
+`vi.mock()` calls are hoisted above all imports. Factory functions cannot reference
+outer-scope variables — they execute before any `const`/`let` declarations:
+
+```typescript
+// Bad — ReferenceError: Cannot access 'mockPosts' before initialization
+const mockPosts = [{ title: 'Test' }];
+vi.mock('@/data/posts', () => ({ posts: mockPosts }));
+
+// Good — inline the data
+vi.mock('@/data/posts', () => ({
+  posts: [{ title: 'Test' }],
+}));
+```
