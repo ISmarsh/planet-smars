@@ -120,7 +120,11 @@ cp .toolbox/.github/workflows/claude-caller-example.yml .github/workflows/claude
 
 The caller references `samm-the-dev/toolbox/.github/workflows/claude.yml@main` and passes `ANTHROPIC_API_KEY` from the repo's secrets. To restrict which behaviors run, change the `mode` input to `on-demand`, `adversarial`, or `copilot-response` (default is `all`).
 
-**Secret setup:** Add `ANTHROPIC_API_KEY` as an organization secret (available to all repos) or as a per-repo secret if you prefer isolation.
+**Secret setup:** Add `ANTHROPIC_API_KEY` as a repo secret in each consumer repo:
+
+```bash
+gh secret set ANTHROPIC_API_KEY --repo samm-the-dev/my-new-app
+```
 
 ## 10. Claude Code Hooks (one-time machine setup)
 
