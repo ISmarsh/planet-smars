@@ -109,7 +109,26 @@ Add to package.json:
 
 Then add the a11y job to your CI workflow (see `config/github-workflows/README.md`).
 
-## 9. Claude Code Hooks (one-time machine setup)
+## 9. Claude Code GitHub Action
+
+Add the shared Claude Code workflow so @claude mentions, adversarial PR review, and Copilot response all work without duplicating the workflow in each repo:
+
+```bash
+mkdir -p .github/workflows
+cp .toolbox/.github/workflows/claude-caller-example.yml .github/workflows/claude.yml
+```
+
+The caller references `samm-the-dev/toolbox/.github/workflows/claude.yml@main` and passes `ANTHROPIC_API_KEY` from the repo's secrets. To restrict which behaviors run, change the `mode` input to `on-demand`, `adversarial`, or `copilot-response` (default is `all`).
+
+**Secret setup:** Add `ANTHROPIC_API_KEY` as a repo secret in each consumer repo:
+
+```bash
+gh secret set ANTHROPIC_API_KEY --repo samm-the-dev/my-new-app
+```
+
+Pull the key from your password manager (Dashlane, 1Password, etc.) to avoid storing it in plaintext. If you later move repos under a GitHub organization, you can replace per-repo secrets with a single [organization secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-an-organization) scoped to selected repos.
+
+## 10. Claude Code Hooks (one-time machine setup)
 
 Copy hooks to your Claude Code config directory:
 
@@ -140,7 +159,7 @@ Adjust the path if Git is installed elsewhere (`where bash` to find it):
 
 This is a one-time setup per machine, not per project.
 
-## 10. Clean Up Config Templates
+## 11. Clean Up Config Templates
 
 After copying what you need from `config/`, remove it:
 
@@ -149,7 +168,7 @@ rm -rf config/
 git add -A && git commit -m "Remove config templates after setup"
 ```
 
-## 11. VSCode Configuration
+## 12. VSCode Configuration
 
 The template includes `.vscode/launch.json` and `.vscode/tasks.json` for debugging and dev server tasks. Customize as needed.
 
@@ -163,7 +182,7 @@ After setup, verify:
 - [ ] Push a test branch and confirm CI runs
 - [ ] (If Pages) Confirm deploy workflow triggers on main
 
-## 12. Claude Code LSP (one-time machine setup)
+## 13. Claude Code LSP (one-time machine setup)
 
 Install language server binaries and plugins for semantic code navigation. See [ai-context/lsp-setup.md](ai-context/lsp-setup.md) for the full guide.
 
