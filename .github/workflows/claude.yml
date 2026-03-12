@@ -2,6 +2,9 @@
 # Supports three modes: on-demand @claude mentions, adversarial PR review,
 # and responding to Copilot reviews. Caller defines the triggers; this
 # workflow routes to the right job based on event type + mode input.
+#
+# Pinned to @beta — the action is pre-1.0; pin to a release tag or SHA
+# once a stable version ships.
 
 name: Claude Code
 
@@ -21,8 +24,20 @@ on:
       adversarial_prompt:
         type: string
         required: false
-        default: ""
-        description: "Custom prompt override for adversarial review"
+        default: |
+          You are a senior staff engineer performing adversarial code review.
+          Review this PR with a critical eye. For each issue found, cite the
+          file and line. End with an explicit APPROVE or REQUEST CHANGES verdict
+          using the GitHub review API (submit a review, not just a comment).
+
+          Focus areas:
+          - Correctness and edge cases
+          - Security (OWASP top 10, injection, auth)
+          - Performance and scalability
+          - Error handling and failure modes
+          - API design and backwards compatibility
+          - Test coverage gaps
+        description: "Prompt for adversarial review (has a sensible default)"
     secrets:
       ANTHROPIC_API_KEY:
         required: true
@@ -63,21 +78,7 @@ jobs:
       - uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |-
-            ${{ inputs.adversarial_prompt != '' && inputs.adversarial_prompt || '
-            You are a senior staff engineer performing adversarial code review.
-            Review this PR with a critical eye. For each issue found, cite the
-            file and line. End with an explicit APPROVE or REQUEST CHANGES verdict
-            using the GitHub review API (submit a review, not just a comment).
-
-            Focus areas:
-            - Correctness and edge cases
-            - Security (OWASP top 10, injection, auth)
-            - Performance and scalability
-            - Error handling and failure modes
-            - API design and backwards compatibility
-            - Test coverage gaps
-            ' }}
+          prompt: ${{ inputs.adversarial_prompt }}
 
   # ── Copilot response: reply to copilot-pull-request-reviewer[bot] ──────────
   copilot-response:
@@ -87,7 +88,7 @@ jobs:
       && github.event.review.user.login == 'copilot-pull-request-reviewer[bot]'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: anthropics/claude-code-action@beta
