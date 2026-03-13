@@ -33,7 +33,7 @@ export interface GoogleAuth {
   silentRefresh(): Promise<string | null>;
   requestAccessToken(prompt?: '' | 'consent'): Promise<string | null>;
   disconnect(): void;
-  /** Clear the in-memory token without revoking or touching localStorage. */
+  /** Clear the current access token (in-memory and persisted) without revoking. Keeps the refresh token for re-auth. */
   invalidateToken(): void;
   /**
    * Request an additional scope via incremental consent.
@@ -391,6 +391,15 @@ export function createGoogleAuth(config: GoogleAuthConfig): GoogleAuth {
   function invalidateToken(): void {
     accessToken = null;
     tokenExpiry = 0;
+    // Clear persisted access token/expiry so silentRefresh() won't rehydrate
+    // the stale token from localStorage. Keep the refresh token so the next
+    // silentRefresh() goes straight to the cloud function for a fresh token.
+    try {
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(TOKEN_EXPIRY_KEY);
+    } catch {
+      // Ignore storage errors.
+    }
   }
 
   // --- Disconnect ---

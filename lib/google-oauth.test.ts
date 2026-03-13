@@ -104,7 +104,7 @@ describe('invalidateToken', () => {
     vi.stubGlobal('fetch', vi.fn());
   });
 
-  it('clears in-memory token without touching localStorage', async () => {
+  it('clears in-memory token and persisted access token, keeps refresh token', async () => {
     const futureExpiry = Date.now() + 3600_000;
     localStorage.setItem(ACCESS_KEY, 'cached-token');
     localStorage.setItem(EXPIRY_KEY, String(futureExpiry));
@@ -118,9 +118,40 @@ describe('invalidateToken', () => {
     expect(auth.isAuthenticated()).toBe(false);
     expect(auth.getAccessToken()).toBeNull();
 
-    // localStorage should still have the tokens
-    expect(localStorage.getItem(ACCESS_KEY)).toBe('cached-token');
+    // Persisted access token/expiry should be cleared
+    expect(localStorage.getItem(ACCESS_KEY)).toBeNull();
+    expect(localStorage.getItem(EXPIRY_KEY)).toBeNull();
+    // Refresh token should be preserved for re-auth
     expect(localStorage.getItem(REFRESH_KEY)).toBe('refresh-token');
+  });
+
+  it('silentRefresh hits cloud function after invalidateToken (not stale cache)', async () => {
+    const futureExpiry = Date.now() + 3600_000;
+    localStorage.setItem(ACCESS_KEY, 'stale-token');
+    localStorage.setItem(EXPIRY_KEY, String(futureExpiry));
+    localStorage.setItem(REFRESH_KEY, 'refresh-token');
+
+    const auth = createAuth();
+    await auth.silentRefresh();
+    expect(auth.getAccessToken()).toBe('stale-token');
+
+    auth.invalidateToken();
+
+    // Next silentRefresh should call the cloud function, not reuse cache
+    (globalThis.fetch as Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ access_token: 'fresh-token', expires_in: 3600 }),
+    });
+
+    const result = await auth.silentRefresh();
+    expect(result).toBe('fresh-token');
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      TOKEN_URL,
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ action: 'refresh', refresh_token: 'refresh-token' }),
+      }),
+    );
   });
 });
 
