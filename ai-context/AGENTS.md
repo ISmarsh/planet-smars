@@ -38,6 +38,10 @@ When initializing a new project with toolbox as a submodule, follow the [INIT.md
 
 - **Always use merge commits** (`gh pr merge --merge`), not squash or rebase unless explicitly requested
 
+## GitHub Actions
+
+See [github-actions.md](github-actions.md) for reusable workflow permissions, the workflow self-introduction gap, and `claude-code-action` API changes.
+
 ## PR Review Workflow
 
 Use `gh pr checks --watch` for CI status. See [pr-workflow.md](pr-workflow.md) for detailed commands.
