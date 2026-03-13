@@ -95,7 +95,7 @@ export function createGoogleAuth(config: GoogleAuthConfig): GoogleAuth {
   }
 
   function getHeaders(): { Authorization: string } | null {
-    if (!accessToken) return null;
+    if (!isAuthenticated()) return null;
     return { Authorization: `Bearer ${accessToken}` };
   }
 
@@ -209,14 +209,23 @@ export function createGoogleAuth(config: GoogleAuthConfig): GoogleAuth {
     }
   }
 
-  // --- Token request ---
+  // --- Token request (with in-flight deduplication) ---
+
+  let tokenRequestPromise: Promise<string | null> | null = null;
 
   function requestAccessToken(prompt: '' | 'consent' = 'consent'): Promise<string | null> {
-    if (useCodeFlow) {
-      if (prompt === '') {
-        return silentRefresh();
-      }
+    if (useCodeFlow && prompt === '') {
+      return silentRefresh();
+    }
+    if (tokenRequestPromise) return tokenRequestPromise;
+    tokenRequestPromise = doRequestAccessToken(prompt).finally(() => {
+      tokenRequestPromise = null;
+    });
+    return tokenRequestPromise;
+  }
 
+  function doRequestAccessToken(prompt: '' | 'consent'): Promise<string | null> {
+    if (useCodeFlow) {
       return new Promise((resolve) => {
         if (!codeClient) {
           resolve(null);
@@ -280,7 +289,6 @@ export function createGoogleAuth(config: GoogleAuthConfig): GoogleAuth {
           if (prompt === 'consent') {
             console.error(`${logPrefix} Auth error:`, response.error_description);
           }
-          accessToken = null;
           resolve(null);
           return;
         }
@@ -365,7 +373,6 @@ export function createGoogleAuth(config: GoogleAuthConfig): GoogleAuth {
         callback: (response) => {
           if (response.error) {
             console.error(`${logPrefix} Incremental scope error:`, response.error_description);
-            accessToken = null;
             resolve(null);
             return;
           }

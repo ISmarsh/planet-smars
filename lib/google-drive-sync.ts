@@ -67,10 +67,12 @@ export function createDriveSync<T>(config: DriveSyncConfig<T>): DriveSync<T> {
   async function ensureHeaders(): Promise<HeadersInit> {
     if (!auth.isAuthenticated()) {
       const token = (await auth.silentRefresh()) ?? (await auth.requestAccessToken());
-      if (token) return { Authorization: `Bearer ${token}` };
-      throw new Error('Not authenticated with Google Drive');
+      if (!token) throw new Error('Not authenticated with Google Drive');
+      return { Authorization: `Bearer ${token}` };
     }
-    return { Authorization: `Bearer ${auth.getAccessToken()}` };
+    const headers = auth.getHeaders();
+    if (!headers) throw new Error('Not authenticated with Google Drive');
+    return headers;
   }
 
   async function findFileId(): Promise<string | null> {
