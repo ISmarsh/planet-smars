@@ -13,7 +13,7 @@ Job-level `permissions:` blocks in a reusable workflow **override** the caller's
 **Fix — caller (consumer repo):**
 
 ```yaml
-# Required by claude-code-action@beta for OIDC token + write access.
+# Required by claude-code-action for OIDC token + write access.
 # The repo default is often read-only; omitting this causes startup_failure.
 permissions:
   contents: write
@@ -40,18 +40,17 @@ A PR that introduces a new workflow file won't trigger that workflow on itself. 
 
 This is expected GitHub behavior. Accept an UNSTABLE/no-checks state for the introducing PR and verify functionality on a follow-up PR or the next organic trigger.
 
-## `claude-code-action` — Known API Changes
+## `claude-code-action` — Version Pinning
 
-`claude-code-action@beta` renamed the `prompt` input to `direct_prompt`. Using the old name produces `Unexpected input(s) 'prompt'` and silently drops the prompt.
+Pin to `@v1` (tracks latest v1.x). The older `@beta` tag is 260+ commits behind and has a broken prepare step that fails to checkout the repo.
 
 ```yaml
-# Correct
-- uses: anthropics/claude-code-action@beta
+- uses: anthropics/claude-code-action@v1
   with:
-    direct_prompt: "Your prompt here"
+    prompt: "Your prompt here"
 ```
 
-Check the action's release notes when upgrading — it's pre-1.0 and inputs may change.
+The `@beta` tag used `direct_prompt`; `@v1` renamed it back to `prompt`.
 
 ## Fork PRs and `workflow_call`
 

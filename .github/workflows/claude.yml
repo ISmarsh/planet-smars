@@ -3,8 +3,7 @@
 # and responding to Copilot reviews. Caller defines the triggers; this
 # workflow routes to the right job based on event type + mode input.
 #
-# Pinned to @beta — the action is pre-1.0; pin to a release tag or SHA
-# once a stable version ships.
+# Pinned to @v1 — follows the latest v1.x release.
 
 name: Claude Code
 
@@ -60,7 +59,7 @@ jobs:
       issues: write
       id-token: write
     steps:
-      - uses: anthropics/claude-code-action@beta
+      - uses: anthropics/claude-code-action@v1
         with:
           trigger_phrase: ${{ inputs.trigger_phrase }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -77,10 +76,10 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
-      - uses: anthropics/claude-code-action@beta
+      - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: ${{ inputs.adversarial_prompt }}
+          prompt: ${{ inputs.adversarial_prompt }}
 
   # ── Copilot response: reply to copilot-pull-request-reviewer[bot] ──────────
   copilot-response:
@@ -94,10 +93,10 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
-      - uses: anthropics/claude-code-action@beta
+      - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: |-
+          prompt: |-
             Copilot just submitted a review on this PR. Read its comments,
             evaluate each suggestion, and respond inline:
             - If the suggestion is valid, fix the code and reply confirming.
