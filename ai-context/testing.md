@@ -67,12 +67,15 @@ vi.mock('@/data/posts', () => ({
 
 ## Test Stub Isolation
 
-Test stubs using module-level mutable state persist across tests. `beforeEach` cleanup
-(e.g., `localStorage.clear()`) won't help if the stub bypasses the real storage:
+Module-level singletons with mutable closure state persist across tests. `beforeEach`
+cleanup (e.g., `localStorage.clear()`) won't help if the stub bypasses the real storage:
 
 ```typescript
-// Bad — module-level state leaks between tests
-export function createStorage<T>(opts: { createDefault: () => T }) {
+// Bad — singleton's closure state leaks between tests
+const storage = createStorage({ createDefault: () => ({ count: 0 }) });
+export { storage };
+
+function createStorage<T>(opts: { createDefault: () => T }) {
   let data: T = opts.createDefault();  // persists across tests!
   return {
     load: () => data,
@@ -80,7 +83,7 @@ export function createStorage<T>(opts: { createDefault: () => T }) {
   };
 }
 
-// Good — back with localStorage so beforeEach cleanup works
+// Good — backed by localStorage so beforeEach cleanup works
 export function createStorage<T>(opts: { storageKey: string; createDefault: () => T }) {
   return {
     load: (): T => {

@@ -111,7 +111,7 @@ Two patterns for deploying multiple projects under a shared base domain:
 
 ### Pattern A — Per-project subdomain
 
-Each project gets its own subdomain (e.g., `build-a-jam.samm-the.dev`). Each repo has its own `public/CNAME` file and its own custom domain set in GHP settings. GitHub routes by matching the CNAME file in each repo. Vite `base: '/'`.
+Each project gets its own subdomain (e.g., `build-a-jam.samm-the.dev`). Each repo has its own `public/CNAME` file and its own custom domain set in GitHub Pages settings. GitHub routes by matching the CNAME file in each repo. Vite `base: '/'`.
 
 DNS: one CNAME record per subdomain, all pointing to `<user>.github.io`.
 
@@ -119,7 +119,7 @@ Use when: the project warrants its own identity/domain, or is a standalone app n
 
 ### Pattern B — Shared domain via user site
 
-All projects serve under a single domain at subpaths (e.g., `apps.samm-the.dev/ohm`). The user site repo (`<user>.github.io`) owns the custom domain; project repos have no CNAME and no custom domain set — GitHub automatically routes them at `customdomain/<repo>/`. Vite `base: command === 'build' ? '/<repo>/' : '/'`.
+All projects serve under a single domain at subpaths (e.g., `apps.samm-the.dev/ohm`). The user site repo (`<user>.github.io`) owns the custom domain; project repos have no CNAME and no custom domain set — GitHub automatically routes them at `https://<custom-domain>/<repo>/`. Vite `base: command === 'build' ? '/<repo>/' : '/'`.
 
 DNS: one CNAME record for the shared subdomain pointing to `<user>.github.io`. The user site repo needs at least one commit and GHP enabled with the custom domain set.
 
