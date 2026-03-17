@@ -170,7 +170,28 @@ git add -A && git commit -m "Remove config templates after setup"
 
 ## 12. VSCode Configuration
 
-The template includes `.vscode/launch.json` and `.vscode/tasks.json` for debugging and dev server tasks. Customize as needed.
+The template includes `.vscode/launch.json` and `.vscode/tasks.json` for debugging and dev server tasks. The dev task has `"group": {"kind": "build", "isDefault": true}` so Ctrl+Shift+B starts the dev server. Customize the port if your project uses a non-default port.
+
+## 13. PWA Icon Generation (if applicable)
+
+Copy the icon generation script from the template:
+
+```bash
+cp config/pwa-icons/generate-pwa-icons.sh scripts/
+```
+
+Usage:
+```bash
+# From a Lucide icon name
+bash scripts/generate-pwa-icons.sh -i wallet -b "#0f172a" -f "#22c55e"
+
+# From a custom SVG
+bash scripts/generate-pwa-icons.sh -i ./scripts/my-icon.svg -b "#0f172a"
+```
+
+**Requires:** ImageMagick 7+ (`winget install ImageMagick.ImageMagick` / `brew install imagemagick`)
+
+Browse icon options at [lucide.dev/icons](https://lucide.dev/icons/).
 
 ## Verification
 
@@ -182,8 +203,25 @@ After setup, verify:
 - [ ] Push a test branch and confirm CI runs
 - [ ] (If Pages) Confirm deploy workflow triggers on main
 
-## 13. Claude Code LSP (one-time machine setup)
+## 16. Claude Code LSP (one-time machine setup)
 
 Install language server binaries and plugins for semantic code navigation. See [ai-context/lsp-setup.md](ai-context/lsp-setup.md) for the full guide.
 
 This is a one-time setup per machine, not per project.
+
+---
+
+## Toolbox-Specific Additions
+
+These changes are made after cloning from the template and adding the `.toolbox` submodule. They can't live in the template itself because they depend on the submodule.
+
+**tsconfig.app.json** -- add toolbox types and test excludes:
+```json
+"include": ["src", ".toolbox/types"],
+"exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test"]
+```
+
+**For Dexie/IndexedDB projects:**
+- Add `"noUncheckedIndexedAccess": true` to tsconfig.app.json compilerOptions
+- Add `import 'fake-indexeddb/auto'` to `src/test/setup.ts`
+- Install: `npm install -D fake-indexeddb`
