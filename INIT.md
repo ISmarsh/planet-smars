@@ -2,15 +2,13 @@
 
 Use this checklist when initializing a new project from the [react-vite-starter](https://github.com/samm-the-dev/react-vite-starter) template.
 
-## 1. Scaffold and Connect
+## 1. Scaffold
 
 ```bash
 # Create repo from template (clean commit history)
 gh repo create my-new-app --template samm-the-dev/react-vite-starter --clone --public
 cd my-new-app
-
-# Add toolbox submodule
-git submodule add https://github.com/samm-the-dev/toolbox .toolbox
+npm install  # postinstall initializes .toolbox submodule
 ```
 
 ## 2. CI Workflow
@@ -170,7 +168,22 @@ git add -A && git commit -m "Remove config templates after setup"
 
 ## 12. VSCode Configuration
 
-The template includes `.vscode/launch.json` and `.vscode/tasks.json` for debugging and dev server tasks. Customize as needed.
+The template includes `.vscode/launch.json` and `.vscode/tasks.json` for debugging and dev server tasks. The dev task has `"group": {"kind": "build", "isDefault": true}` so Ctrl+Shift+B starts the dev server. Customize the port if your project uses a non-default port.
+
+## 13. PWA Icon Generation (if applicable)
+
+The template includes `scripts/generate-pwa-icons.sh`. Usage:
+```bash
+# From a Lucide icon name
+bash scripts/generate-pwa-icons.sh -i wallet -b "#0f172a" -f "#22c55e"
+
+# From a custom SVG
+bash scripts/generate-pwa-icons.sh -i ./scripts/my-icon.svg -b "#0f172a"
+```
+
+**Requires:** ImageMagick 7+ (`winget install ImageMagick.ImageMagick` / `brew install imagemagick`)
+
+Browse icon options at [lucide.dev/icons](https://lucide.dev/icons/).
 
 ## Verification
 
@@ -182,8 +195,26 @@ After setup, verify:
 - [ ] Push a test branch and confirm CI runs
 - [ ] (If Pages) Confirm deploy workflow triggers on main
 
-## 13. Claude Code LSP (one-time machine setup)
+## 14. Claude Code LSP (one-time machine setup)
 
 Install language server binaries and plugins for semantic code navigation. See [ai-context/lsp-setup.md](ai-context/lsp-setup.md) for the full guide.
 
 This is a one-time setup per machine, not per project.
+
+---
+
+## Toolbox-Specific Additions
+
+These changes are made after cloning from the template. The `.toolbox` submodule is included in the template and initialized automatically by `npm install` (via the postinstall script). These additions can't live in the template because they reference the submodule contents.
+
+**tsconfig.app.json** -- add toolbox types and test excludes to the existing config:
+```jsonc
+// add to existing tsconfig.app.json
+"include": ["src", ".toolbox/types"],
+"exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test"]
+```
+
+**For Dexie/IndexedDB projects:**
+- Add `"noUncheckedIndexedAccess": true` to tsconfig.app.json compilerOptions
+- Add `import 'fake-indexeddb/auto'` to `src/test/setup.ts`
+- Install: `npm install -D fake-indexeddb`
