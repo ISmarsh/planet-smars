@@ -95,7 +95,7 @@ export function createLocalStorage<T extends { version: number }>(
     try {
       const data = await storage.get<T>(storageKey);
       if (!data) return null;
-      if ((data as Record<string, unknown>).version !== version) return null;
+      if (data.version !== version) return null;
       return sanitize(data);
     } catch (e) {
       console.error(`${logPrefix} Recovery from StorageService failed:`, e);
