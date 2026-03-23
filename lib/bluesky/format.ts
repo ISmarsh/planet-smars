@@ -33,6 +33,8 @@ export function graphemeLength(text: string): number {
  * Uses grapheme-aware counting.
  */
 export function truncate(text: string, maxLength: number): string {
+  if (maxLength <= 0) return '';
+  if (maxLength === 1) return '\u2026';
   if (graphemeLength(text) <= maxLength) return text;
 
   // Reserve space for ellipsis
@@ -54,7 +56,7 @@ export function truncate(text: string, maxLength: number): string {
 
 /**
  * Split text into chunks that fit within the character limit.
- * Splits on newlines or sentence boundaries where possible.
+ * Splits on newline boundaries. Lines exceeding the limit are truncated.
  *
  * Returns an array of strings, each within POST_CHAR_LIMIT.
  */

@@ -21,7 +21,13 @@ import type { TrackingEntry, TrackingState } from './types';
 export function loadState(filePath: string): TrackingState {
   if (!existsSync(filePath)) return {};
 
-  const raw = JSON.parse(readFileSync(filePath, 'utf-8'));
+  let raw: unknown;
+  try {
+    raw = JSON.parse(readFileSync(filePath, 'utf-8'));
+  } catch (err) {
+    console.error(`Warning: failed to read state file ${filePath}, starting fresh:`, err);
+    return {};
+  }
 
   // Migrate legacy array format -> object format
   if (Array.isArray(raw)) {

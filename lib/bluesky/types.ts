@@ -20,10 +20,12 @@ export interface BlueskyPost {
     title: string;
     description: string;
   };
-  /** Reply to an existing post. */
+  /** Reply to an existing post (parent). Optionally specify root for threads. */
   replyTo?: {
     uri: string;
     cid: string;
+    /** Thread root post. If omitted, parent is used as root (direct reply). */
+    root?: PostResult;
   };
 }
 

@@ -5,6 +5,10 @@
  * auth via App Password, RichText facet detection, link card embeds,
  * and reply threading.
  *
+ * NOTE: This module imports @atproto/api which is NOT listed in toolbox's
+ * package.json (toolbox is a submodule, not a standalone package). Consuming
+ * projects must install @atproto/api as their own dependency.
+ *
  * Usage:
  *   import { createClient, post } from '../../.toolbox/lib/bluesky/client';
  *   const agent = await createClient({ handle, appPassword });
@@ -78,16 +82,15 @@ export async function post(
   }
 
   if (blueskyPost.replyTo) {
-    params.reply = {
-      root: {
-        uri: blueskyPost.replyTo.uri,
-        cid: blueskyPost.replyTo.cid,
-      },
-      parent: {
-        uri: blueskyPost.replyTo.uri,
-        cid: blueskyPost.replyTo.cid,
-      },
+    const parent = {
+      uri: blueskyPost.replyTo.uri,
+      cid: blueskyPost.replyTo.cid,
     };
+    const root = blueskyPost.replyTo.root
+      ? { uri: blueskyPost.replyTo.root.uri, cid: blueskyPost.replyTo.root.cid }
+      : parent;
+
+    params.reply = { root, parent };
   }
 
   const response = await agent.post(params);
@@ -96,6 +99,9 @@ export async function post(
 
 /**
  * Post a thread (array of posts where each replies to the previous).
+ * Correctly sets reply.root to the first post and reply.parent to the
+ * immediately preceding post, so Bluesky clients group the thread properly.
+ *
  * Returns all post results in order.
  */
 export async function postThread(
@@ -105,8 +111,14 @@ export async function postThread(
   const results: PostResult[] = [];
 
   for (const threadPost of posts) {
-    const replyTo =
-      results.length > 0 ? results[results.length - 1] : threadPost.replyTo;
+    let replyTo = threadPost.replyTo;
+
+    if (results.length > 0) {
+      // root = first post in thread, parent = immediately preceding post
+      const root = results[0];
+      const parent = results[results.length - 1];
+      replyTo = { uri: parent.uri, cid: parent.cid, root };
+    }
 
     const result = await post(agent, {
       ...threadPost,

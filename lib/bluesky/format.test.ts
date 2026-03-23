@@ -38,6 +38,14 @@ describe('truncate', () => {
   it('handles exact limit', () => {
     expect(truncate('exact', 5)).toBe('exact');
   });
+
+  it('handles zero maxLength', () => {
+    expect(truncate('hello', 0)).toBe('');
+  });
+
+  it('handles maxLength of 1', () => {
+    expect(truncate('hello', 1)).toBe('\u2026');
+  });
 });
 
 describe('splitForThread', () => {
