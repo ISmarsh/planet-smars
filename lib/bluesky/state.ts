@@ -38,6 +38,12 @@ export function loadState(filePath: string): TrackingState {
     return migrated;
   }
 
+  // Validate shape: must be a non-null plain object
+  if (typeof raw !== 'object' || raw === null) {
+    console.error(`Warning: state file ${filePath} has unexpected shape, starting fresh.`);
+    return {};
+  }
+
   return raw as TrackingState;
 }
 
@@ -51,7 +57,7 @@ export function saveState(filePath: string, state: TrackingState): void {
 
 /** Check if an ID has already been tracked (posted). */
 export function isTracked(state: TrackingState, id: string): boolean {
-  return id in state;
+  return Object.hasOwn(state, id);
 }
 
 /** Mark an ID as posted with its Bluesky uri/cid. */
