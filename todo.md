@@ -5,7 +5,8 @@
 - [ ] Add shared Google OAuth hook/pattern — used by recdeck, alt-text-gen
 - [ ] Add GHA to auto-update submodule in consumer repos when toolbox main changes (avoids PR churn for mechanical submodule bumps; Copilot chokes on submodule diffs)
 - [ ] Promote multi-theme system from the-enchiridion once extracted
-- [ ] Add shared notification pattern (Discord webhook + Bluesky posting) — used by alamo-watcher, improv-watcher
+- [ ] Add shared notification pattern (Discord webhook) — used by alamo-watcher, improv-watcher
+- [x] Extract Bluesky posting module to lib/bluesky/ (client, state, format) — extracted from bio crosspost workflow; consumed by ttrpg-releases-bot, movie-releases-bot
 - [ ] Extract shared share-link handler (Web Share API + clipboard fallback + sonner toast) — used by ohm, build-a-jam, bio
 - [ ] Extract useSwipeToDismiss hook to toolbox/hooks/ — used by build-a-jam, check if bio/ohm have equivalent
 - [ ] Write PreToolUse hook to strip leading `cd <workdir> &&` and `-C <workdir>` from Bash commands — Claude redundantly includes these when the working directory is already set, which breaks auto-allows for readonly git ops (allows match on command prefix, `cd repo && git status` doesn't match `git status`)
