@@ -137,6 +137,34 @@ Prefer tool-native filtering (e.g., `gh api --jq '.field'`) over piping to `jq`.
 
 The same considerations apply to other npm-installed CLI tools (for example, `prettier`, `eslint`, etc.) when called via `execFileSync` / `spawnSync`.
 
+## Launching GUI Apps from Scripts
+
+Windows GUI apps (VLC, etc.) may silently fail or behave differently depending on how they're launched.
+
+**VLC requires native Windows paths.** Forward slashes in file paths cause VLC to open without loading media — no error, just an empty window:
+```powershell
+# Bad — VLC opens but doesn't load the file
+& $vlc --start-time 100 --stop-time 110 "D:/Shows/My Show/episode.mkv"
+
+# Good — backslash paths work
+& $vlc --start-time 100 --stop-time 110 "D:\Shows\My Show\episode.mkv"
+```
+
+**Blocking on GUI process exit.** The `&` call operator in PowerShell does *not* reliably block on GUI apps — VLC may detach and return immediately. Use `Start-Process -Wait` with args as a single string (array form mangles VLC's `--flag` syntax):
+```powershell
+# Bad — & returns immediately, loop doesn't wait
+& $vlc --play-and-exit "D:\path\file.mkv"
+
+# Bad — array ArgumentList mangles --flags
+Start-Process -FilePath $vlc -ArgumentList @("--play-and-exit", "file.mkv") -Wait
+
+# Good — single string ArgumentList preserves flags
+$vlcArgs = "--play-and-exit --no-loop --start-time $start --stop-time $end `"$source`""
+Start-Process -FilePath $vlc -ArgumentList $vlcArgs -Wait
+```
+
+**PowerShell `-File` vs `-Command` mode.** `-File` mode parses arguments differently and can mangle flags intended for the target program. If a `.ps1` script launches external tools with `--flag` arguments and they aren't being received correctly, the script itself is fine — the issue is how it's invoked. Running the script directly in a PowerShell terminal avoids this.
+
 ## gh API Path Gotcha (Git Bash / MSYS2)
 
 Git Bash (MSYS2) rewrites arguments starting with `/` as Windows paths. Omit the leading slash in `gh api` calls:
