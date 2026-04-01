@@ -44,13 +44,13 @@ See [github-actions.md](github-actions.md) for reusable workflow permissions, th
 
 ## PR Review Workflow
 
-Use `gh pr checks --watch` for CI status. See [pr-workflow.md](pr-workflow.md) for detailed commands.
+Prefer MCP tools (`pull_request_read`, `request_copilot_review`, `add_reply_to_pull_request_comment`) for PR operations. Use `/loop` for non-blocking review watching. Fall back to `gh api` in background agents. See [pr-workflow.md](pr-workflow.md) for detailed commands.
 
-1. Fetch unresolved threads (GraphQL)
+1. Fetch unresolved threads (MCP `get_review_comments` or GraphQL)
 2. Triage: fix actionable items, note dismissals
 3. Make code changes
 4. Reply to each comment (explain fix or dismissal reason)
-5. Resolve all threads via batched mutation
+5. Resolve all threads via GraphQL batched mutation
 6. Commit and push
 
 ## Testing
@@ -153,3 +153,7 @@ For examples, Windows-specific patterns, and file locking, see [python-reference
 ## FFmpeg
 
 For audio/video processing patterns (stereo downmix, crop detection, stream-copy cutting), see [ffmpeg-reference.md](ffmpeg-reference.md).
+
+## Google Cloud CLI
+
+`gcloud storage rsync --exclude` uses Python regex (`featured/.*`), not globs (`featured/**`). See [gcloud-reference.md](gcloud-reference.md) for patterns and pitfalls.
