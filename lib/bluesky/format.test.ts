@@ -13,7 +13,6 @@ describe('graphemeLength', () => {
   });
 
   it('counts emoji as single graphemes', () => {
-    // Film clapper emoji
     expect(graphemeLength('\uD83C\uDFAC')).toBe(1);
     expect(graphemeLength('Movie \uD83C\uDFAC night')).toBe(13);
   });
@@ -54,13 +53,12 @@ describe('splitForThread', () => {
   });
 
   it('splits on newlines with thread indicators', () => {
-    const line = 'A'.repeat(20);
-    const text = [line, line, line].join('\n');
+    const text = Array.from({ length: 10 }, (_, i) => `Line ${i}`).join('\n');
     const result = splitForThread(text, { maxLength: 40 });
     expect(result.length).toBeGreaterThan(1);
-    // Each part should have a thread indicator
     result.forEach((chunk) => {
       expect(chunk).toContain('\u{1F9F5}');
+      expect(graphemeLength(chunk)).toBeLessThanOrEqual(40);
     });
   });
 
@@ -75,6 +73,14 @@ describe('splitForThread', () => {
     }
   });
 
+  it('returns single post with hashtags when text fits', () => {
+    const result = splitForThread('Short post', { hashtags: ['#Test'] });
+    expect(result).toHaveLength(1);
+    expect(result[0]).toContain('Short post');
+    expect(result[0]).toContain('#Test');
+    expect(result[0]).not.toContain('\u{1F9F5}');
+  });
+
   it('adds continuation header to posts 2+', () => {
     const text = Array.from({ length: 10 }, (_, i) => `Line ${i}`).join('\n');
     const result = splitForThread(text, { maxLength: 60, continuationHeader: 'Header (cont.)' });
@@ -82,7 +88,18 @@ describe('splitForThread', () => {
     expect(result[0]).not.toContain('(cont.)');
     for (let i = 1; i < result.length; i++) {
       expect(result[i]).toContain('Header (cont.)');
+      expect(graphemeLength(result[i])).toBeLessThanOrEqual(60);
     }
+  });
+
+  it('handles continuation header without hashtags', () => {
+    const text = Array.from({ length: 10 }, (_, i) => `Line ${i}`).join('\n');
+    const result = splitForThread(text, { maxLength: 60, continuationHeader: 'Cont.' });
+    expect(result.length).toBeGreaterThan(1);
+    // All posts should be within limit
+    result.forEach((chunk) => {
+      expect(graphemeLength(chunk)).toBeLessThanOrEqual(60);
+    });
   });
 });
 
@@ -121,6 +138,15 @@ describe('formatBulletList', () => {
     expect(result[0]).not.toContain('(cont.)');
     for (let i = 1; i < result.length; i++) {
       expect(result[i]).toContain('Header (cont.)');
+      expect(graphemeLength(result[i])).toBeLessThanOrEqual(POST_CHAR_LIMIT);
     }
+  });
+
+  it('stays within limit with continuation header and no footer', () => {
+    const items = Array.from({ length: 20 }, (_, i) => `Movie ${i + 1} -- Description here`);
+    const result = formatBulletList('Header', items, { continuationHeader: 'Header (cont.)' });
+    result.forEach((chunk) => {
+      expect(graphemeLength(chunk)).toBeLessThanOrEqual(POST_CHAR_LIMIT);
+    });
   });
 });

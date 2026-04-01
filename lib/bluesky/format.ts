@@ -9,41 +9,43 @@
 export const POST_CHAR_LIMIT = 300;
 
 /**
+ * Thread indicator overhead per post.
+ * Format: " (1/2 🧵)" on first post, "\n\n(2/2 🧵)" on continuations.
+ * Reserve enough for two-digit part numbers.
+ */
+const THREAD_INDICATOR_RESERVE = 11;
+
+// Intl.Segmenter type — available in Node 16+ but not in all TS lib targets.
+type SegmenterCtor = new (
+  locale: string,
+  opts: { granularity: string },
+) => { segment(s: string): Iterable<{ segment: string }> };
+
+function getSegmenter(): SegmenterCtor | undefined {
+  return (Intl as Record<string, unknown>).Segmenter as SegmenterCtor | undefined;
+}
+
+/**
  * Count grapheme clusters in a string.
  * Bluesky counts characters as grapheme clusters, not code points or UTF-16 units.
- * Uses Intl.Segmenter where available (Node 16+), falls back to spread.
  */
 export function graphemeLength(text: string): number {
-  // Intl.Segmenter is available in Node 16+ and modern browsers but not in
-  // all TS lib targets. Use a runtime check with type assertion.
-  const SegmenterCtor = (Intl as Record<string, unknown>).Segmenter as
-    | (new (locale: string, opts: { granularity: string }) => { segment(s: string): Iterable<{ segment: string }> })
-    | undefined;
-
-  if (SegmenterCtor) {
-    const segmenter = new SegmenterCtor('en', { granularity: 'grapheme' });
-    return [...segmenter.segment(text)].length;
-  }
-  // Fallback: spread handles most emoji but not all ZWJ sequences
+  const Ctor = getSegmenter();
+  if (Ctor) return [...new Ctor('en', { granularity: 'grapheme' }).segment(text)].length;
   return [...text].length;
 }
 
 /**
  * Truncate text to fit within a character limit, appending an ellipsis if needed.
- * Uses grapheme-aware counting.
  */
 export function truncate(text: string, maxLength: number): string {
   if (maxLength <= 0) return '';
   if (maxLength === 1) return '\u2026';
   if (graphemeLength(text) <= maxLength) return text;
 
-  // Reserve space for ellipsis
-  const SegmenterCtor = (Intl as Record<string, unknown>).Segmenter as
-    | (new (locale: string, opts: { granularity: string }) => { segment(s: string): Iterable<{ segment: string }> })
-    | undefined;
-
-  const segments = SegmenterCtor
-    ? [...new SegmenterCtor('en', { granularity: 'grapheme' }).segment(text)]
+  const Ctor = getSegmenter();
+  const segments = Ctor
+    ? [...new Ctor('en', { granularity: 'grapheme' }).segment(text)]
     : [...text].map((s) => ({ segment: s }));
 
   return (
@@ -55,24 +57,16 @@ export function truncate(text: string, maxLength: number): string {
 }
 
 /**
- * Thread indicator overhead.
- * Suffix: "\n(1/2 🧵)" = 9 graphemes (newline + indicator).
- * Reserve enough for two-digit part numbers.
- */
-const THREAD_INDICATOR_RESERVE = 11;
-
-/**
  * Add thread indicators to multi-part posts.
  * Post 1: indicator appended to the last line (same line as hashtags).
- * Posts 2+: indicator on its own line.
+ * Posts 2+: indicator on its own line with extra spacing.
  */
 function addThreadIndicators(parts: string[]): string[] {
   if (parts.length <= 1) return parts;
   const total = parts.length;
   return parts.map((text, i) => {
     const indicator = `(${i + 1}/${total} \u{1F9F5})`;
-    if (i === 0) return `${text} ${indicator}`;
-    return `${text}\n\n${indicator}`;
+    return i === 0 ? `${text} ${indicator}` : `${text}\n\n${indicator}`;
   });
 }
 
@@ -82,7 +76,7 @@ export interface SplitOptions {
   maxLength?: number;
   /** Hashtags to append to the first post only (e.g. ['#Movies', '#Filmsky']). */
   hashtags?: string[];
-  /** Header to prepend to continuation posts (e.g. "▶️ New on Streaming (March 24, continued)"). */
+  /** Header to prepend to continuation posts (e.g. "▶️ New on Streaming (cont.)"). */
   continuationHeader?: string;
 }
 
@@ -99,22 +93,21 @@ export function splitForThread(
 ): string[] {
   const { maxLength = POST_CHAR_LIMIT, hashtags, continuationHeader } = options;
 
-  if (graphemeLength(text) <= maxLength && !hashtags?.length) return [text];
-
   // Build hashtag suffix for the first post
   const hashtagSuffix = hashtags?.length ? '\n\n' + hashtags.join(' ') : '';
-  const hashtagLen = graphemeLength(hashtagSuffix);
+
+  // Early return: fits in one post with hashtags, no splitting needed
+  if (graphemeLength(text + hashtagSuffix) <= maxLength) {
+    return [hashtagSuffix ? text + hashtagSuffix : text];
+  }
 
   // Build continuation prefix for posts 2+
   const contPrefix = continuationHeader ? continuationHeader + '\n\n' : '';
-  const contPrefixLen = graphemeLength(contPrefix);
 
-  // Reserve space for thread indicators when splitting
-  const effectiveMax = maxLength - THREAD_INDICATOR_RESERVE;
-  // First chunk also needs room for hashtags
-  const firstMax = effectiveMax - hashtagLen;
-  // Continuation chunks need room for the header prefix
-  const contMax = effectiveMax - contPrefixLen;
+  // Compute per-post budgets, clamped to at least 1
+  const effectiveMax = Math.max(1, maxLength - THREAD_INDICATOR_RESERVE);
+  const firstMax = Math.max(1, effectiveMax - graphemeLength(hashtagSuffix));
+  const contMax = Math.max(1, effectiveMax - graphemeLength(contPrefix));
 
   const chunks: string[] = [];
   const lines = text.split('\n');
@@ -129,30 +122,22 @@ export function splitForThread(
       current = candidate;
     } else {
       if (current) {
-        if (isFirst && hashtagSuffix) {
-          current += hashtagSuffix;
-          isFirst = false;
-        }
+        if (isFirst) current += hashtagSuffix;
         chunks.push(current);
+        isFirst = false;
       }
-      // If a single line exceeds the limit, truncate it
-      const lineLimit = isFirst ? firstMax : contMax;
-      current = graphemeLength(line) > lineLimit ? truncate(line, lineLimit) : line;
+      current = graphemeLength(line) > contMax ? truncate(line, contMax) : line;
     }
   }
 
   if (current) {
-    if (isFirst && hashtagSuffix) {
-      current += hashtagSuffix;
-    }
+    if (isFirst) current += hashtagSuffix;
     chunks.push(current);
   }
 
   // Add continuation headers to posts 2+
-  if (contPrefix) {
-    for (let i = 1; i < chunks.length; i++) {
-      chunks[i] = contPrefix + chunks[i];
-    }
+  for (let i = 1; i < chunks.length; i++) {
+    chunks[i] = contPrefix + chunks[i];
   }
 
   return addThreadIndicators(chunks);
@@ -164,7 +149,7 @@ export interface BulletListOptions {
   maxLength?: number;
   /** Footer text (hashtags) — placed on the first post for discoverability. */
   footer?: string;
-  /** Header to prepend to continuation posts. Derived from the main header if not provided. */
+  /** Header to prepend to continuation posts (optional). */
   continuationHeader?: string;
 }
 
@@ -187,18 +172,15 @@ export function formatBulletList(
 
   if (graphemeLength(fullText) <= maxLength) return [fullText];
 
-  // Reserve space for thread indicators
-  const effectiveMax = maxLength - THREAD_INDICATOR_RESERVE;
-
-  // Continuation posts get a header prefix
+  // Build continuation prefix for posts 2+
   const contPrefix = continuationHeader ? continuationHeader + '\n\n' : '';
   const contPrefixLen = graphemeLength(contPrefix);
-  const contMax = effectiveMax - contPrefixLen;
 
-  // Doesn't fit -- split into multiple posts.
-  // Footer (hashtags) goes on the first post for discoverability.
+  // Compute per-post budgets, clamped to at least 1
+  const effectiveMax = Math.max(1, maxLength - THREAD_INDICATOR_RESERVE);
+  const contMax = Math.max(1, effectiveMax - contPrefixLen);
   const footerSuffix = footer ? '\n\n' + footer : '';
-  const firstPostMax = effectiveMax - graphemeLength(footerSuffix);
+  const firstPostMax = Math.max(1, effectiveMax - graphemeLength(footerSuffix));
 
   const posts: string[] = [];
   let currentLines = [header, ''];
@@ -214,9 +196,9 @@ export function formatBulletList(
     } else {
       if (isFirstPost && footer) {
         currentLines.push('', footer);
-        isFirstPost = false;
       }
       posts.push(currentLines.join('\n'));
+      isFirstPost = false;
       currentLines = [bullet];
       currentLen = graphemeLength(bullet);
     }
@@ -229,10 +211,8 @@ export function formatBulletList(
   posts.push(currentLines.join('\n'));
 
   // Add continuation headers to posts 2+
-  if (contPrefix) {
-    for (let i = 1; i < posts.length; i++) {
-      posts[i] = contPrefix + posts[i];
-    }
+  for (let i = 1; i < posts.length; i++) {
+    posts[i] = contPrefix + posts[i];
   }
 
   return addThreadIndicators(posts);
