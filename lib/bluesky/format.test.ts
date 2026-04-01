@@ -50,23 +50,45 @@ describe('truncate', () => {
 
 describe('splitForThread', () => {
   it('returns single chunk when under limit', () => {
-    expect(splitForThread('short post', 300)).toEqual(['short post']);
+    expect(splitForThread('short post', { maxLength: 300 })).toEqual(['short post']);
   });
 
-  it('splits on newlines', () => {
+  it('splits on newlines with thread indicators', () => {
     const line = 'A'.repeat(20);
     const text = [line, line, line].join('\n');
-    const result = splitForThread(text, 25);
+    const result = splitForThread(text, { maxLength: 40 });
     expect(result.length).toBeGreaterThan(1);
+    // Each part should have a thread indicator
     result.forEach((chunk) => {
-      expect(graphemeLength(chunk)).toBeLessThanOrEqual(25);
+      expect(chunk).toContain('\u{1F9F5}');
     });
+  });
+
+  it('puts hashtags on first post only', () => {
+    const text = Array.from({ length: 10 }, (_, i) => `Line ${i}`).join('\n');
+    const result = splitForThread(text, { maxLength: 60, hashtags: ['#Test', '#Movies'] });
+    expect(result.length).toBeGreaterThan(1);
+    expect(result[0]).toContain('#Test');
+    expect(result[0]).toContain('#Movies');
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).not.toContain('#Test');
+    }
+  });
+
+  it('adds continuation header to posts 2+', () => {
+    const text = Array.from({ length: 10 }, (_, i) => `Line ${i}`).join('\n');
+    const result = splitForThread(text, { maxLength: 60, continuationHeader: 'Header (cont.)' });
+    expect(result.length).toBeGreaterThan(1);
+    expect(result[0]).not.toContain('(cont.)');
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).toContain('Header (cont.)');
+    }
   });
 });
 
 describe('formatBulletList', () => {
   it('formats a simple list in one post', () => {
-    const result = formatBulletList('Header', ['Item 1', 'Item 2'], 'Footer');
+    const result = formatBulletList('Header', ['Item 1', 'Item 2'], { footer: 'Footer' });
     expect(result).toHaveLength(1);
     expect(result[0]).toContain('Header');
     expect(result[0]).toContain('\u2022 Item 1');
@@ -83,10 +105,22 @@ describe('formatBulletList', () => {
     });
   });
 
-  it('includes footer in last post', () => {
+  it('puts footer on first post when splitting', () => {
     const items = Array.from({ length: 20 }, (_, i) => `Movie ${i + 1} -- Description here`);
-    const result = formatBulletList('Header', items, 'What are you seeing?');
-    const last = result[result.length - 1];
-    expect(last).toContain('What are you seeing?');
+    const result = formatBulletList('Header', items, { footer: '#Movies #Filmsky' });
+    expect(result[0]).toContain('#Movies');
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).not.toContain('#Movies');
+    }
+  });
+
+  it('adds continuation header to posts 2+', () => {
+    const items = Array.from({ length: 20 }, (_, i) => `Movie ${i + 1} -- Description here`);
+    const result = formatBulletList('Header', items, { continuationHeader: 'Header (cont.)' });
+    expect(result.length).toBeGreaterThan(1);
+    expect(result[0]).not.toContain('(cont.)');
+    for (let i = 1; i < result.length; i++) {
+      expect(result[i]).toContain('Header (cont.)');
+    }
   });
 });

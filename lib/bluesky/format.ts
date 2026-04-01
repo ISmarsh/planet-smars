@@ -55,82 +55,185 @@ export function truncate(text: string, maxLength: number): string {
 }
 
 /**
+ * Thread indicator overhead.
+ * Suffix: "\n(1/2 🧵)" = 9 graphemes (newline + indicator).
+ * Reserve enough for two-digit part numbers.
+ */
+const THREAD_INDICATOR_RESERVE = 11;
+
+/**
+ * Add thread indicators to multi-part posts.
+ * Post 1: indicator appended to the last line (same line as hashtags).
+ * Posts 2+: indicator on its own line.
+ */
+function addThreadIndicators(parts: string[]): string[] {
+  if (parts.length <= 1) return parts;
+  const total = parts.length;
+  return parts.map((text, i) => {
+    const indicator = `(${i + 1}/${total} \u{1F9F5})`;
+    if (i === 0) return `${text} ${indicator}`;
+    return `${text}\n\n${indicator}`;
+  });
+}
+
+/** Options for {@link splitForThread}. */
+export interface SplitOptions {
+  /** Character limit per post. Default: POST_CHAR_LIMIT (300). */
+  maxLength?: number;
+  /** Hashtags to append to the first post only (e.g. ['#Movies', '#Filmsky']). */
+  hashtags?: string[];
+  /** Header to prepend to continuation posts (e.g. "▶️ New on Streaming (March 24, continued)"). */
+  continuationHeader?: string;
+}
+
+/**
  * Split text into chunks that fit within the character limit.
  * Splits on newline boundaries. Lines exceeding the limit are truncated.
+ * Multi-part results get thread continuation indicators.
  *
- * Returns an array of strings, each within POST_CHAR_LIMIT.
+ * Returns an array of strings, each within the character limit.
  */
 export function splitForThread(
   text: string,
-  maxLength = POST_CHAR_LIMIT,
+  options: SplitOptions = {},
 ): string[] {
-  if (graphemeLength(text) <= maxLength) return [text];
+  const { maxLength = POST_CHAR_LIMIT, hashtags, continuationHeader } = options;
+
+  if (graphemeLength(text) <= maxLength && !hashtags?.length) return [text];
+
+  // Build hashtag suffix for the first post
+  const hashtagSuffix = hashtags?.length ? '\n\n' + hashtags.join(' ') : '';
+  const hashtagLen = graphemeLength(hashtagSuffix);
+
+  // Build continuation prefix for posts 2+
+  const contPrefix = continuationHeader ? continuationHeader + '\n\n' : '';
+  const contPrefixLen = graphemeLength(contPrefix);
+
+  // Reserve space for thread indicators when splitting
+  const effectiveMax = maxLength - THREAD_INDICATOR_RESERVE;
+  // First chunk also needs room for hashtags
+  const firstMax = effectiveMax - hashtagLen;
+  // Continuation chunks need room for the header prefix
+  const contMax = effectiveMax - contPrefixLen;
 
   const chunks: string[] = [];
   const lines = text.split('\n');
   let current = '';
+  let isFirst = true;
 
   for (const line of lines) {
     const candidate = current ? current + '\n' + line : line;
+    const limit = isFirst ? firstMax : contMax;
 
-    if (graphemeLength(candidate) <= maxLength) {
+    if (graphemeLength(candidate) <= limit) {
       current = candidate;
     } else {
-      if (current) chunks.push(current);
+      if (current) {
+        if (isFirst && hashtagSuffix) {
+          current += hashtagSuffix;
+          isFirst = false;
+        }
+        chunks.push(current);
+      }
       // If a single line exceeds the limit, truncate it
-      current = graphemeLength(line) > maxLength ? truncate(line, maxLength) : line;
+      const lineLimit = isFirst ? firstMax : contMax;
+      current = graphemeLength(line) > lineLimit ? truncate(line, lineLimit) : line;
     }
   }
 
-  if (current) chunks.push(current);
-  return chunks;
+  if (current) {
+    if (isFirst && hashtagSuffix) {
+      current += hashtagSuffix;
+    }
+    chunks.push(current);
+  }
+
+  // Add continuation headers to posts 2+
+  if (contPrefix) {
+    for (let i = 1; i < chunks.length; i++) {
+      chunks[i] = contPrefix + chunks[i];
+    }
+  }
+
+  return addThreadIndicators(chunks);
+}
+
+/** Options for {@link formatBulletList}. */
+export interface BulletListOptions {
+  /** Character limit per post. Default: POST_CHAR_LIMIT (300). */
+  maxLength?: number;
+  /** Footer text (hashtags) — placed on the first post for discoverability. */
+  footer?: string;
+  /** Header to prepend to continuation posts. Derived from the main header if not provided. */
+  continuationHeader?: string;
 }
 
 /**
  * Format a list of items into a post body, threading if needed.
  * Each item is a line prefixed with a bullet.
+ * Multi-part results get thread continuation indicators.
  *
  * Returns an array of post texts (length 1 if it fits in one post).
  */
 export function formatBulletList(
   header: string,
   items: string[],
-  footer?: string,
-  maxLength = POST_CHAR_LIMIT,
+  options: BulletListOptions = {},
 ): string[] {
+  const { maxLength = POST_CHAR_LIMIT, footer, continuationHeader } = options;
+
   const bulletLines = items.map((item) => `\u2022 ${item}`);
   const fullText = [header, '', ...bulletLines, ...(footer ? ['', footer] : [])].join('\n');
 
   if (graphemeLength(fullText) <= maxLength) return [fullText];
 
-  // Doesn't fit -- split into multiple posts
+  // Reserve space for thread indicators
+  const effectiveMax = maxLength - THREAD_INDICATOR_RESERVE;
+
+  // Continuation posts get a header prefix
+  const contPrefix = continuationHeader ? continuationHeader + '\n\n' : '';
+  const contPrefixLen = graphemeLength(contPrefix);
+  const contMax = effectiveMax - contPrefixLen;
+
+  // Doesn't fit -- split into multiple posts.
+  // Footer (hashtags) goes on the first post for discoverability.
+  const footerSuffix = footer ? '\n\n' + footer : '';
+  const firstPostMax = effectiveMax - graphemeLength(footerSuffix);
+
   const posts: string[] = [];
   let currentLines = [header, ''];
   let currentLen = graphemeLength(currentLines.join('\n'));
+  let isFirstPost = true;
 
   for (const bullet of bulletLines) {
     const added = '\n' + bullet;
-    if (currentLen + graphemeLength(added) <= maxLength) {
+    const limit = isFirstPost ? firstPostMax : contMax;
+    if (currentLen + graphemeLength(added) <= limit) {
       currentLines.push(bullet);
       currentLen += graphemeLength(added);
     } else {
+      if (isFirstPost && footer) {
+        currentLines.push('', footer);
+        isFirstPost = false;
+      }
       posts.push(currentLines.join('\n'));
       currentLines = [bullet];
       currentLen = graphemeLength(bullet);
     }
   }
 
-  // Add footer to last chunk if it fits, otherwise make a new post
-  if (footer) {
-    const footerAdded = '\n\n' + footer;
-    if (currentLen + graphemeLength(footerAdded) <= maxLength) {
-      currentLines.push('', footer);
-    } else {
-      posts.push(currentLines.join('\n'));
-      currentLines = [footer];
-    }
+  if (isFirstPost && footer) {
+    currentLines.push('', footer);
   }
 
   posts.push(currentLines.join('\n'));
-  return posts;
+
+  // Add continuation headers to posts 2+
+  if (contPrefix) {
+    for (let i = 1; i < posts.length; i++) {
+      posts[i] = contPrefix + posts[i];
+    }
+  }
+
+  return addThreadIndicators(posts);
 }
