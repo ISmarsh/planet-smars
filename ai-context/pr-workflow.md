@@ -1,10 +1,33 @@
 # PR Review & Copilot Workflow
 
-Detailed commands and procedures for managing pull request reviews via GitHub CLI. For core PR rules, see [AGENTS.md](AGENTS.md).
+Detailed commands and procedures for managing pull request reviews. For core PR rules, see [AGENTS.md](AGENTS.md).
 
-## Fetching Unresolved Review Threads
+## MCP Tools (Preferred)
 
-The REST API (`/pulls/{pr}/comments`) returns all comments with no resolved filter. Use GraphQL instead:
+When the GitHub MCP server is available, use MCP tools for PR operations. They return structured data (no `--jq` parsing) and can trigger Copilot review programmatically.
+
+| Operation | MCP Tool | Method/Params |
+|-----------|----------|---------------|
+| Fetch review threads | `pull_request_read` | `get_review_comments` |
+| Reply to comment | `add_reply_to_pull_request_comment` | `commentId` (numeric) |
+| Request Copilot review | `request_copilot_review` | — |
+| Merge PR | `merge_pull_request` | — |
+| Check CI | `pull_request_read` | `get_check_runs` |
+
+**Limitation:** MCP tools are only available in the main conversation context. Background agents cannot use them — use `gh api` (below) or `/loop` with `/schedule` for non-blocking polling.
+
+## Resolving Threads
+
+MCP tools can reply to comments but cannot resolve threads. Use GraphQL:
+
+```bash
+gh api graphql -f query='mutation {
+  t1: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
+  t2: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
+}'
+```
+
+To find unresolved thread IDs:
 
 ```bash
 gh api graphql -f query='query {
@@ -24,34 +47,19 @@ gh api graphql -f query='query {
 }'
 ```
 
-Filter results for `isResolved: false`.
+## gh CLI Fallback
 
-## Replying to Comments
-
-```bash
-gh api repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies -f body="Reply text"
-```
-
-Use `databaseId` from GraphQL (numeric) for the REST reply endpoint.
-
-## Resolving Threads (Batched)
+For background agents or environments without MCP:
 
 ```bash
-gh api graphql -f query='mutation {
-  t1: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
-  t2: resolveReviewThread(input: {threadId: "PRRT_..."}) { thread { isResolved } }
-}'
-```
+# Reply to a comment
+gh api repos/OWNER/REPO/pulls/comments/COMMENT_ID/replies -f body="Reply text"
 
-## Checking CI Status
-
-**Default approach:** Use `--watch` to wait for checks to complete:
-
-```bash
+# Check CI status (blocking wait)
 gh pr checks <PR_NUMBER> --watch
 ```
 
-This is the preferred method — no polling or manual refresh needed.
+Use `databaseId` from GraphQL (numeric) for the REST reply endpoint.
 
 ## Copilot Auto-Review
 
@@ -86,34 +94,20 @@ Categorize each comment:
 
 ### Checking if Copilot Review is Complete
 
-Copilot reviews take about 60 seconds. To check if the latest commit has been reviewed:
+Use MCP `pull_request_read` with `get_review_comments` — if threads exist, the review is in. Copilot typically reviews within 60 seconds.
+
+For background agents without MCP:
 
 ```bash
-# Get the latest commit SHA on the PR branch
 LATEST_COMMIT=$(gh pr view <PR_NUMBER> --json headRefOid -q .headRefOid)
-
-# Get the commit SHA of Copilot's most recent review
 REVIEWED_COMMIT=$(gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews \
   --jq '[.[] | select(.user.login | contains("copilot"))] | last | .commit_id')
-
-# Compare them
-if [ "$LATEST_COMMIT" = "$REVIEWED_COMMIT" ]; then
-  echo "Review complete"
-else
-  echo "Review pending or not triggered"
-fi
+[ "$LATEST_COMMIT" = "$REVIEWED_COMMIT" ] && echo "Review complete" || echo "Pending"
 ```
-
-Or in a single line:
-```bash
-gh api repos/OWNER/REPO/pulls/<PR_NUMBER>/reviews --jq 'map(select(.user.login | contains("copilot"))) | last | .commit_id'
-```
-
-Compare this to the current HEAD. If they match, the review is complete.
 
 ### If Copilot Doesn't Review
 
-Sometimes skips commits (small changes, rapid pushes). Manually trigger via GitHub UI: PR page > Reviewers (right sidebar) > gear icon > select "copilot-pull-request-reviewer". The `gh` CLI can't assign bot reviewers (`--add-reviewer` returns HTTP 422 for bot users) — manual trigger is UI-only.
+Sometimes skips commits (small changes, rapid pushes). Trigger via MCP (`request_copilot_review`) or GitHub UI: PR page > Reviewers (right sidebar) > gear icon > select "copilot-pull-request-reviewer". The `gh` CLI can't assign bot reviewers (`--add-reviewer` returns HTTP 422 for bot users).
 
 **Don't confuse "pending" with "skipped."** If you check immediately after PR creation and get no reviews, wait and recheck before concluding it skipped (reviews typically take about a minute). Only manually trigger after at least 2 minutes with no review.
 
@@ -125,10 +119,6 @@ gh pr create --base main --title "..." --body "..."
 ```
 
 To avoid the issue entirely, create PRs against main even for stacked work.
-
-### Background Agent Permissions
-
-Background agents (`run_in_background: true`) inherit allow rules from `settings.json`, but every command in the polling loop must be covered — including `sleep`. If any command prompts for approval, the background agent blocks silently (it can't surface prompts to the user). Ensure `Bash(sleep:*)` is in your allows alongside `Bash(gh:*)` etc.
 
 ### Repeat Comments Across Rounds
 
