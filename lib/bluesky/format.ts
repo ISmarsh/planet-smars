@@ -126,7 +126,8 @@ export function splitForThread(
         chunks.push(current);
         isFirst = false;
       }
-      current = graphemeLength(line) > contMax ? truncate(line, contMax) : line;
+      const overflowLimit = isFirst ? firstMax : contMax;
+      current = graphemeLength(line) > overflowLimit ? truncate(line, overflowLimit) : line;
     }
   }
 

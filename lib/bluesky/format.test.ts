@@ -113,13 +113,19 @@ describe('formatBulletList', () => {
     expect(result[0]).toContain('Footer');
   });
 
-  it('splits into multiple posts when items overflow', () => {
+  it('splits into multiple posts when items overflow, with indicators', () => {
     const items = Array.from({ length: 20 }, (_, i) => `Movie Title ${i + 1} -- A great film about stuff`);
     const result = formatBulletList('Opening This Weekend', items);
     expect(result.length).toBeGreaterThan(1);
-    result.forEach((chunk) => {
+    result.forEach((chunk, i) => {
       expect(graphemeLength(chunk)).toBeLessThanOrEqual(POST_CHAR_LIMIT);
+      expect(chunk).toContain('\u{1F9F5}');
+      expect(chunk).toContain(`${i + 1}/${result.length}`);
     });
+    // First post: indicator on same line (space-separated)
+    expect(result[0]).toMatch(/\(1\/\d+ 🧵\)$/);
+    // Continuation: indicator after blank line
+    expect(result[1]).toMatch(/\n\n\(\d+\/\d+ 🧵\)$/);
   });
 
   it('puts footer on first post when splitting', () => {
