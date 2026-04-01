@@ -4,6 +4,7 @@ import {
   truncate,
   splitForThread,
   formatBulletList,
+  formatThreadSummary,
   POST_CHAR_LIMIT,
 } from './format';
 
@@ -151,6 +152,87 @@ describe('formatBulletList', () => {
   it('stays within limit with continuation header and no footer', () => {
     const items = Array.from({ length: 20 }, (_, i) => `Movie ${i + 1} -- Description here`);
     const result = formatBulletList('Header', items, { continuationHeader: 'Header (cont.)' });
+    result.forEach((chunk) => {
+      expect(graphemeLength(chunk)).toBeLessThanOrEqual(POST_CHAR_LIMIT);
+    });
+  });
+});
+
+describe('formatThreadSummary', () => {
+  it('formats a flat list in one post when it fits', () => {
+    const result = formatThreadSummary({
+      header: 'Header',
+      continuationHeader: 'Header (cont.)',
+      items: ['Movie A', 'Movie B'],
+      hashtags: ['#Movies'],
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0]).toContain('Header');
+    expect(result[0]).toContain('\u2022 Movie A');
+    expect(result[0]).toContain('\u2022 Movie B');
+    expect(result[0]).toContain('#Movies');
+    expect(result[0]).not.toContain('\u{1F9F5}');
+  });
+
+  it('splits flat list with hashtags on first post and indicators', () => {
+    const items = Array.from({ length: 20 }, (_, i) => `Movie Title ${i + 1} -- A great film`);
+    const result = formatThreadSummary({
+      header: 'Opening This Weekend',
+      continuationHeader: 'Opening This Weekend (cont.)',
+      items,
+      hashtags: ['#Movies', '#Filmsky'],
+    });
+    expect(result.length).toBeGreaterThan(1);
+    // First post has hashtags and indicator
+    expect(result[0]).toContain('#Movies');
+    expect(result[0]).toContain('\u{1F9F5}');
+    // Continuation has header and indicator, no hashtags
+    expect(result[1]).toContain('(cont.)');
+    expect(result[1]).toContain('\u{1F9F5}');
+    expect(result[1]).not.toContain('#Movies');
+    // All within limit
+    result.forEach((chunk) => {
+      expect(graphemeLength(chunk)).toBeLessThanOrEqual(POST_CHAR_LIMIT);
+    });
+  });
+
+  it('formats grouped items with service labels', () => {
+    const result = formatThreadSummary({
+      header: 'New on Streaming',
+      continuationHeader: 'New on Streaming (cont.)',
+      items: [
+        { label: 'Netflix', items: ['Movie A', 'Movie B'] },
+        { label: 'Hulu', items: ['Movie C'] },
+      ],
+      hashtags: ['#Streaming'],
+    });
+    expect(result).toHaveLength(1);
+    expect(result[0]).toContain('Netflix:');
+    expect(result[0]).toContain('\u2022 Movie A');
+    expect(result[0]).toContain('Hulu:');
+    expect(result[0]).toContain('\u2022 Movie C');
+  });
+
+  it('re-states group label on continuation when split mid-group', () => {
+    const movies = Array.from({ length: 15 }, (_, i) => `Movie ${i + 1}`);
+    const result = formatThreadSummary({
+      header: 'New on Streaming',
+      continuationHeader: 'New on Streaming (cont.)',
+      items: [
+        { label: 'Peacock', items: movies },
+        { label: 'Netflix', items: ['Bohemian Rhapsody'] },
+      ],
+      hashtags: ['#Streaming'],
+    });
+    expect(result.length).toBeGreaterThan(1);
+    // First post starts with Peacock
+    expect(result[0]).toContain('Peacock:');
+    // Continuation should re-state Peacock: if split mid-group
+    const contContent = result[1];
+    if (contContent.includes('\u2022 Movie')) {
+      expect(contContent).toContain('Peacock:');
+    }
+    // All within limit
     result.forEach((chunk) => {
       expect(graphemeLength(chunk)).toBeLessThanOrEqual(POST_CHAR_LIMIT);
     });
