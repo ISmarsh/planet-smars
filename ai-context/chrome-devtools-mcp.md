@@ -50,9 +50,9 @@ Or in `~/.claude.json`:
 }
 ```
 
-### 3. Restart VSCode
+### 3. Restart Claude Code
 
-The MCP server connects on startup. After restart, verify with `list_pages`.
+The MCP server connects on startup. Restart whichever host you're using (VSCode, CLI, etc.), then verify with `list_pages`.
 
 ## Key CLI Flags
 

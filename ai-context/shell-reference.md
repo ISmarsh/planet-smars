@@ -141,7 +141,7 @@ The same considerations apply to other npm-installed CLI tools (for example, `pr
 
 Windows GUI apps (VLC, etc.) may silently fail or behave differently depending on how they're launched.
 
-**VLC requires native Windows paths.** Forward slashes in file paths cause VLC to open without loading media — no error, just an empty window:
+**VLC requires native Windows paths.** Unlike most CLI tools, forward slashes in file paths cause VLC to open without loading media — no error, just an empty window:
 ```powershell
 # Bad — VLC opens but doesn't load the file
 & $vlc --start-time 100 --stop-time 110 "D:/Shows/My Show/episode.mkv"

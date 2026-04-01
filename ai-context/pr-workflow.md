@@ -14,7 +14,7 @@ When the GitHub MCP server is available, use MCP tools for PR operations. They r
 | Merge PR | `merge_pull_request` | — |
 | Check CI | `pull_request_read` | `get_check_runs` |
 
-**Limitation:** MCP tools are only available in the main conversation context. Background agents cannot use them — use `gh api` (below) or `/loop` with CronCreate for non-blocking polling.
+**Limitation:** MCP tools are only available in the main conversation context. Background agents cannot use them — use `gh api` (below) or `/loop` with `/schedule` for non-blocking polling.
 
 ## Resolving Threads
 
@@ -53,7 +53,7 @@ For background agents or environments without MCP:
 
 ```bash
 # Reply to a comment
-gh api repos/OWNER/REPO/pulls/PR/comments/COMMENT_ID/replies -f body="Reply text"
+gh api repos/OWNER/REPO/pulls/comments/COMMENT_ID/replies -f body="Reply text"
 
 # Check CI status (blocking wait)
 gh pr checks <PR_NUMBER> --watch
