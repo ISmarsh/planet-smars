@@ -9,41 +9,43 @@
 export const POST_CHAR_LIMIT = 300;
 
 /**
+ * Thread indicator overhead per post.
+ * Format: " (1/2 🧵)" on first post, "\n\n(2/2 🧵)" on continuations.
+ * Reserve enough for two-digit part numbers.
+ */
+const THREAD_INDICATOR_RESERVE = 11;
+
+// Intl.Segmenter type — available in Node 16+ but not in all TS lib targets.
+type SegmenterCtor = new (
+  locale: string,
+  opts: { granularity: string },
+) => { segment(s: string): Iterable<{ segment: string }> };
+
+function getSegmenter(): SegmenterCtor | undefined {
+  return (Intl as Record<string, unknown>).Segmenter as SegmenterCtor | undefined;
+}
+
+/**
  * Count grapheme clusters in a string.
  * Bluesky counts characters as grapheme clusters, not code points or UTF-16 units.
- * Uses Intl.Segmenter where available (Node 16+), falls back to spread.
  */
 export function graphemeLength(text: string): number {
-  // Intl.Segmenter is available in Node 16+ and modern browsers but not in
-  // all TS lib targets. Use a runtime check with type assertion.
-  const SegmenterCtor = (Intl as Record<string, unknown>).Segmenter as
-    | (new (locale: string, opts: { granularity: string }) => { segment(s: string): Iterable<{ segment: string }> })
-    | undefined;
-
-  if (SegmenterCtor) {
-    const segmenter = new SegmenterCtor('en', { granularity: 'grapheme' });
-    return [...segmenter.segment(text)].length;
-  }
-  // Fallback: spread handles most emoji but not all ZWJ sequences
+  const Ctor = getSegmenter();
+  if (Ctor) return [...new Ctor('en', { granularity: 'grapheme' }).segment(text)].length;
   return [...text].length;
 }
 
 /**
  * Truncate text to fit within a character limit, appending an ellipsis if needed.
- * Uses grapheme-aware counting.
  */
 export function truncate(text: string, maxLength: number): string {
   if (maxLength <= 0) return '';
   if (maxLength === 1) return '\u2026';
   if (graphemeLength(text) <= maxLength) return text;
 
-  // Reserve space for ellipsis
-  const SegmenterCtor = (Intl as Record<string, unknown>).Segmenter as
-    | (new (locale: string, opts: { granularity: string }) => { segment(s: string): Iterable<{ segment: string }> })
-    | undefined;
-
-  const segments = SegmenterCtor
-    ? [...new SegmenterCtor('en', { granularity: 'grapheme' }).segment(text)]
+  const Ctor = getSegmenter();
+  const segments = Ctor
+    ? [...new Ctor('en', { granularity: 'grapheme' }).segment(text)]
     : [...text].map((s) => ({ segment: s }));
 
   return (
@@ -55,82 +57,131 @@ export function truncate(text: string, maxLength: number): string {
 }
 
 /**
- * Split text into chunks that fit within the character limit.
- * Splits on newline boundaries. Lines exceeding the limit are truncated.
- *
- * Returns an array of strings, each within POST_CHAR_LIMIT.
+ * Add thread indicators to multi-part posts.
+ * Post 1: indicator appended to the last line (same line as hashtags).
+ * Posts 2+: indicator on its own line with extra spacing.
  */
-export function splitForThread(
-  text: string,
-  maxLength = POST_CHAR_LIMIT,
-): string[] {
-  if (graphemeLength(text) <= maxLength) return [text];
+function addThreadIndicators(parts: string[]): string[] {
+  if (parts.length <= 1) return parts;
+  const total = parts.length;
+  return parts.map((text, i) => {
+    const indicator = `(${i + 1}/${total} \u{1F9F5})`;
+    return i === 0 ? `${text} ${indicator}` : `${text}\n\n${indicator}`;
+  });
+}
 
-  const chunks: string[] = [];
-  const lines = text.split('\n');
-  let current = '';
+/** A group of labeled items (e.g. movies grouped by streaming service). */
+export interface ItemGroup {
+  label: string;
+  items: string[];
+}
 
-  for (const line of lines) {
-    const candidate = current ? current + '\n' + line : line;
-
-    if (graphemeLength(candidate) <= maxLength) {
-      current = candidate;
-    } else {
-      if (current) chunks.push(current);
-      // If a single line exceeds the limit, truncate it
-      current = graphemeLength(line) > maxLength ? truncate(line, maxLength) : line;
-    }
-  }
-
-  if (current) chunks.push(current);
-  return chunks;
+/** Options for {@link formatThreadSummary}. */
+export interface ThreadSummaryOptions {
+  /** Header for the first post (e.g. "▶️ New on Streaming (March 24 – March 31)"). */
+  header: string;
+  /** Header for continuation posts (e.g. "▶️ New on Streaming (March 24 – March 31, cont.)"). */
+  continuationHeader: string;
+  /** Flat list of items, or grouped items with labels. */
+  items: string[] | ItemGroup[];
+  /** Hashtags for the first post (e.g. ['#NewOnStreaming', '#Movies']). */
+  hashtags: string[];
 }
 
 /**
- * Format a list of items into a post body, threading if needed.
- * Each item is a line prefixed with a bullet.
+ * Format a thread summary with automatic splitting, hashtags, continuation
+ * headers, group label re-statement, and thread indicators.
  *
- * Returns an array of post texts (length 1 if it fits in one post).
+ * Accepts either a flat list of items (bulleted) or grouped items with
+ * labels (e.g. streaming services). Handles all Bluesky threading concerns.
+ *
+ * Returns an array of post texts, each within POST_CHAR_LIMIT.
  */
-export function formatBulletList(
-  header: string,
-  items: string[],
-  footer?: string,
-  maxLength = POST_CHAR_LIMIT,
-): string[] {
-  const bulletLines = items.map((item) => `\u2022 ${item}`);
-  const fullText = [header, '', ...bulletLines, ...(footer ? ['', footer] : [])].join('\n');
+export function formatThreadSummary(options: ThreadSummaryOptions): string[] {
+  const { header, continuationHeader, items, hashtags } = options;
 
-  if (graphemeLength(fullText) <= maxLength) return [fullText];
+  // Determine if items are grouped or flat
+  const isGrouped = items.length > 0 && typeof items[0] !== 'string';
+  const groups = isGrouped ? (items as ItemGroup[]) : null;
+  const flatItems = isGrouped ? null : (items as string[]);
 
-  // Doesn't fit -- split into multiple posts
+  // Build the body lines
+  const bodyLines: string[] = [];
+  if (groups) {
+    for (const group of groups) {
+      bodyLines.push(`${group.label}:`);
+      for (const item of group.items) {
+        bodyLines.push(`\u2022 ${item}`);
+      }
+    }
+  } else if (flatItems) {
+    for (const item of flatItems) {
+      bodyLines.push(`\u2022 ${item}`);
+    }
+  }
+
+  // Build hashtag suffix and continuation prefix
+  const hashtagSuffix = hashtags.length > 0 ? '\n\n' + hashtags.join(' ') : '';
+  const contPrefix = continuationHeader + '\n\n';
+
+  // Try single post first
+  const fullText = [header, '', ...bodyLines, ...(hashtagSuffix ? [hashtagSuffix.slice(2)] : [])].join('\n');
+  if (graphemeLength(fullText) <= POST_CHAR_LIMIT) return [fullText];
+
+  // Split into multiple posts
+  const effectiveMax = Math.max(1, POST_CHAR_LIMIT - THREAD_INDICATOR_RESERVE);
+  const firstMax = Math.max(1, effectiveMax - graphemeLength(hashtagSuffix));
+  const contMax = Math.max(1, effectiveMax - graphemeLength(contPrefix));
+
   const posts: string[] = [];
   let currentLines = [header, ''];
   let currentLen = graphemeLength(currentLines.join('\n'));
+  let isFirst = true;
+  let lastGroupLabel: string | null = null;
 
-  for (const bullet of bulletLines) {
-    const added = '\n' + bullet;
-    if (currentLen + graphemeLength(added) <= maxLength) {
-      currentLines.push(bullet);
+  for (const line of bodyLines) {
+    // Track active group label
+    if (line.endsWith(':') && !line.startsWith('\u2022')) {
+      lastGroupLabel = line;
+    }
+
+    const added = '\n' + line;
+    const limit = isFirst ? firstMax : contMax;
+
+    if (currentLen + graphemeLength(added) <= limit) {
+      currentLines.push(line);
       currentLen += graphemeLength(added);
     } else {
+      // Flush current post
+      if (isFirst) {
+        currentLines.push('', hashtagSuffix.slice(2)); // Remove leading \n\n
+      }
       posts.push(currentLines.join('\n'));
-      currentLines = [bullet];
-      currentLen = graphemeLength(bullet);
+      isFirst = false;
+
+      // Start new post — re-state group label if we're mid-group
+      const needsGroupRestate = line.startsWith('\u2022') && lastGroupLabel;
+      if (needsGroupRestate) {
+        currentLines = [lastGroupLabel!, line];
+        currentLen = graphemeLength(currentLines.join('\n'));
+      } else {
+        currentLines = [line];
+        currentLen = graphemeLength(line);
+      }
     }
   }
 
-  // Add footer to last chunk if it fits, otherwise make a new post
-  if (footer) {
-    const footerAdded = '\n\n' + footer;
-    if (currentLen + graphemeLength(footerAdded) <= maxLength) {
-      currentLines.push('', footer);
-    } else {
-      posts.push(currentLines.join('\n'));
-      currentLines = [footer];
-    }
+  // Flush final post
+  if (isFirst && hashtagSuffix) {
+    currentLines.push('', hashtagSuffix.slice(2));
   }
-
   posts.push(currentLines.join('\n'));
-  return posts;
+
+  // Add continuation headers to posts 2+
+  for (let i = 1; i < posts.length; i++) {
+    posts[i] = contPrefix + posts[i];
+  }
+
+  return addThreadIndicators(posts);
 }
+
