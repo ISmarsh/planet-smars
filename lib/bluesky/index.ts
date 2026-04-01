@@ -4,9 +4,9 @@ export {
   POST_CHAR_LIMIT,
   graphemeLength,
   truncate,
-  splitForThread,
-  formatBulletList,
+  formatThreadSummary,
 } from './format';
+export type { ItemGroup, ThreadSummaryOptions } from './format';
 export type {
   BlueskyCredentials,
   BlueskyPost,
